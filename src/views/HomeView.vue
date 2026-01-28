@@ -1,18 +1,16 @@
 <template>
   <div class="home-container">
-    <!-- 상단 섹션 -->
+    <!-- 주차로봇 상태 표시 -->
     <div class="top-section">
       <div class="robot-status">주차로봇 대기중</div>
     </div>
 
-    <!-- 중간 섹션 -->
+    <!-- 주차장 맵 내 잔여 주차 수 표시 (일반/장애인/총 잔여수) -->
     <div class="middle-section">
       <ParkingMap />
-      <div class="status-banner full">만차</div>
-      <div class="status-banner spaces">일반 자리 : 3 / 장애인 자리 : 2</div>
     </div>
 
-    <!-- 하단 섹션 - 키패드 -->
+    <!-- 차량 번호 입력 키패드 -->
     <div class="bottom-section">
       <div class="input-fields">
         <input

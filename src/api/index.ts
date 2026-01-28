@@ -7,7 +7,7 @@ export const publicInstance: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// 관리자 인스턴스
+// 관리자 인스턴스 - 백엔드 미구현으로 주석처리
 export const adminInstance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
