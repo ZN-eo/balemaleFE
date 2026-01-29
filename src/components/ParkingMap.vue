@@ -23,7 +23,7 @@ export default {
       totalCount: 0
     })
 
-    // 주차장 잔여수 조회
+    // 주차장 잔여수 조회 (실패 시 기본값 0 유지, 백엔드 미연결 시 ERR_CONNECTION_REFUSED)
     const fetchParkingCount = async () => {
       try {
         const response = await getAvailableParkingCount()
@@ -31,7 +31,10 @@ export default {
           parkingCount.value = response.data.data
         }
       } catch (error) {
-        console.error('주차장 잔여수 조회 실패:', error)
+        // 백엔드 서버가 꺼져 있거나 baseURL 잘못되면 ERR_CONNECTION_REFUSED 발생
+        if (import.meta.env.DEV) {
+          console.warn('주차장 잔여수 조회 실패 (백엔드 미연결 시 정상). VITE_API_BASE_URL 확인 후 서버 실행 여부 확인:', error?.message || error)
+        }
       }
     }
 

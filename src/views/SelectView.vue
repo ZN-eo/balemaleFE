@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 
 export default {
@@ -35,14 +35,21 @@ export default {
     ParkingMap
   },
   setup() {
+    const route = useRoute()
     const router = useRouter()
 
     const goToExitList = () => {
-      router.push('/exit/list')
+      router.push({
+        path: '/exit/list',
+        query: { vehicleFourNumber: route.query.vehicleFourNumber }
+      })
     }
 
     const goToEntryList = () => {
-      router.push('/entry/list')
+      router.push({
+        path: '/entry/list',
+        query: { vehicleFourNumber: route.query.vehicleFourNumber }
+      })
     }
 
     const goToHome = () => {

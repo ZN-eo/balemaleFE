@@ -16,16 +16,16 @@ export default defineConfig({
     }
   },
 
-  // TODO: 로컬 통신용 포트 변환 코드 재확인 필요
+  // 로컬 개발: /api 요청을 백엔드(70.12.246.130:8080)로 프록시. .env에 VITE_API_BASE_URL=/api 또는 /api/v1 로 두면 프록시 사용
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://70.12.246.130:8080',
         changeOrigin: true
       },
       '/images': {
-        target: 'http://localhost:8080',
+        target: 'http://70.12.246.130:8080',
         changeOrigin: true
       }
     }

@@ -50,6 +50,7 @@
 
 <script>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 
 export default {
@@ -58,6 +59,7 @@ export default {
     ParkingMap
   },
   setup() {
+    const router = useRouter()
     const inputDigits = ref(['', '', '', ''])
 
     const inputNumber = (num) => {
@@ -79,8 +81,11 @@ export default {
     const confirm = () => {
       const code = inputDigits.value.join('')
       if (code.length === 4) {
-        // 확인 로직
-        console.log('입력된 코드:', code)
+        // 4자리 입력 완료 → 선택 화면으로 이동 (조회/출차/입차 선택)
+        router.push({
+          path: '/select',
+          query: { vehicleFourNumber: code }
+        })
       }
     }
 
