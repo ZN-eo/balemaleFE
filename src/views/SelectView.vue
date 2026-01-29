@@ -73,6 +73,7 @@ export default {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+  background-color: #1B4300;
 }
 
 .top-section {
@@ -85,21 +86,24 @@ export default {
 
 .robot-status {
   border: 1px solid #000;
+  background: #fff;
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
+  color: #000;
 }
 
 .middle-section {
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  min-height: 0;
 }
 
 .status-banner {
@@ -144,7 +148,7 @@ export default {
   justify-content: center;
   text-align: center;
   white-space: pre-line;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .prev-btn {
@@ -154,7 +158,7 @@ export default {
   padding: 12px 24px;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 12px;
   box-sizing: border-box;
 }
 

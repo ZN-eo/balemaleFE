@@ -12,17 +12,18 @@
 
     <!-- 차량 번호 입력 키패드 -->
     <div class="bottom-section">
-      <div class="input-fields">
-        <input
-          v-for="(digit, index) in inputDigits"
-          :key="index"
-          v-model="inputDigits[index]"
-          type="text"
-          maxlength="1"
-          class="input-field"
-        />
-      </div>
-      <div class="keypad">
+      <div class="keypad-container">
+        <div class="input-fields">
+          <input
+            v-for="(digit, index) in inputDigits"
+            :key="index"
+            v-model="inputDigits[index]"
+            type="text"
+            maxlength="1"
+            class="input-field"
+          />
+        </div>
+        <div class="keypad">
         <div class="keypad-row">
           <button @click="inputNumber('1')" class="keypad-btn">1</button>
           <button @click="inputNumber('2')" class="keypad-btn">2</button>
@@ -39,10 +40,11 @@
           <button @click="inputNumber('9')" class="keypad-btn">9</button>
         </div>
         <div class="keypad-row">
-          <button @click="deleteDigit" class="keypad-btn">← X</button>
+          <button @click="deleteDigit" class="keypad-btn delete-btn">← X</button>
           <button @click="inputNumber('0')" class="keypad-btn">0</button>
           <button @click="confirm" class="keypad-btn">확인</button>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -103,37 +105,43 @@ export default {
 .home-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
+  background-color: #1B4300;
 }
 
 .top-section {
-  padding: 20px;
-  padding-top: 80px;
+  padding: 10px;
+  padding-top: 60px;
   padding-left: 70px;
   width: 100%;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .robot-status {
   border: 1px solid #000;
-  padding: 20px;
+  background: #fff;
+  padding: 10px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
+  color: #000;
+  font-size: 14px;
 }
 
 .middle-section {
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  min-height: 0;
 }
 
 .status-banner {
@@ -145,16 +153,29 @@ export default {
 }
 
 .bottom-section {
-  padding: 20px;
+  padding: 10px;
   width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.keypad-container {
+  padding: 10px;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .input-fields {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
   justify-content: center;
 }
 
@@ -162,6 +183,7 @@ export default {
   width: 60px;
   height: 60px;
   border: 1px solid #000;
+  background: #fff;
   text-align: center;
   font-size: 24px;
   box-sizing: border-box;
@@ -183,14 +205,20 @@ export default {
 }
 
 .keypad-btn {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   border: 1px solid #000;
   background: #fff;
-  font-size: 20px;
+  font-size: 18px;
   cursor: pointer;
   box-sizing: border-box;
   border-radius: 8px;
+  color: #000;
+}
+
+.keypad-btn.delete-btn {
+  background: #fff;
+  color: #000;
 }
 
 /* 모바일 (480px 이하) */
@@ -221,9 +249,9 @@ export default {
   }
 
   .input-field {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
   }
 
   .keypad {
@@ -232,9 +260,9 @@ export default {
   }
 
   .keypad-btn {
-    width: 70px;
-    height: 70px;
-    font-size: 18px;
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
   }
 }
 
@@ -265,11 +293,13 @@ export default {
   .input-field {
     width: 55px;
     height: 55px;
+    font-size: 22px;
   }
 
   .keypad-btn {
-    width: 75px;
-    height: 75px;
+    width: 55px;
+    height: 55px;
+    font-size: 17px;
   }
 }
 
@@ -315,9 +345,9 @@ export default {
   }
 
   .keypad-btn {
-    width: 100px;
-    height: 100px;
-    font-size: 24px;
+    width: 70px;
+    height: 70px;
+    font-size: 20px;
   }
 }
 </style>

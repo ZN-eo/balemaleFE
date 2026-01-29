@@ -1,10 +1,13 @@
 <template>
   <div class="parking-map">
-    <div class="map-label">주차장 맵 (고정)</div>
+    <div class="parking-grids-container">
+    </div>
     <div class="parking-info">
-      <div v-if="parkingCount.totalCount === 0" class="info-badge full">만차</div>
-      <div v-else class="info-badge spaces">
-        일반 자리 : {{ parkingCount.normalCount }} / 장애인 자리 : {{ parkingCount.disabledCount }}
+      <div v-if="parkingCount.totalCount === 0" class="info-text">
+        <span>일반 자리 : <span class="full-text">만차</span> / 장애인 자리 : <span class="full-text">만차</span></span>
+      </div>
+      <div v-else class="info-text">
+        <span>일반 자리 : {{ parkingCount.normalCount }} / 장애인 자리 : {{ parkingCount.disabledCount }}</span>
       </div>
     </div>
   </div>
@@ -17,6 +20,16 @@ import { getAvailableParkingCount } from '@/api/modules/public'
 export default {
   name: 'ParkingMap',
   setup() {
+    // 상단 그리드: 2행 4열 (8개)
+    const topGridSpots = ref(
+      Array.from({ length: 8 }, () => ({ occupied: false }))
+    )
+    
+    // 하단 그리드: 1행 4열 (4개)
+    const bottomGridSpots = ref(
+      Array.from({ length: 4 }, () => ({ occupied: false }))
+    )
+
     const parkingCount = ref({
       normalCount: 0,
       disabledCount: 0,
@@ -43,6 +56,8 @@ export default {
     })
 
     return {
+      topGridSpots,
+      bottomGridSpots,
       parkingCount
     }
   }
@@ -52,63 +67,149 @@ export default {
 <style scoped>
 .parking-map {
   border: 1px solid #000;
-  min-height: 300px;
+  background: #fff;
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  padding: 8px;
+  gap: 8px;
+  height: 280px;
+  flex-shrink: 0;
 }
 
-.map-label {
+.robot-status-text {
   text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
-.parking-info {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 600px;
+.parking-grids-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
 }
 
-.info-badge {
-  border: 1px solid #000;
-  padding: 12px 16px;
-  text-align: center;
-  background-color: #fff;
-  font-weight: bold;
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  width: 100%;
   box-sizing: border-box;
 }
 
-.info-badge.full {
-  color: #ff0000;
+.parking-grid.top-grid {
+  grid-template-rows: repeat(2, 1fr);
 }
 
-.info-badge.spaces {
+.parking-grid.bottom-grid {
+  grid-template-rows: repeat(1, 1fr);
+}
+
+.parking-spot {
+  aspect-ratio: 1 / 2;
+  border-top: 6px solid #FFD700;
+  border-left: 6px solid #FFD700;
+  border-right: 6px solid #FFD700;
+  border-bottom: 6px solid #FFD700;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.parking-grid.top-grid .parking-spot:nth-child(n+5) {
+  border-top: none;
+}
+
+.parking-grid .parking-spot:nth-child(4n+2),
+.parking-grid .parking-spot:nth-child(4n+3),
+.parking-grid .parking-spot:nth-child(4n+4) {
+  border-left: none;
+}
+
+.parking-spot.occupied {
+  background: #f0f0f0;
+}
+
+.parking-info {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.info-text {
+  background: #fff;
+  padding: 6px 10px;
+  text-align: center;
+  font-size: 12px;
   color: #000;
+  border: 1px solid #000;
+  box-sizing: border-box;
+}
+
+.full-text {
+  color: #ff0000;
+  font-weight: bold;
 }
 
 /* 모바일 (480px 이하) */
 @media (max-width: 480px) {
   .parking-map {
-    min-height: 200px;
+    padding: 6px;
+    gap: 6px;
+    height: 200px;
   }
 
-  .map-label {
-    font-size: 14px;
+  .robot-status-text {
+    font-size: 12px;
+    margin-bottom: 3px;
   }
 
-  .parking-info {
-    bottom: 12px;
-    width: calc(100% - 24px);
+  .parking-grids-container {
+    max-width: 100%;
+    gap: 2px;
   }
 
-  .info-badge {
+  .parking-grid {
+    gap: 0;
+  }
+
+  .parking-spot {
+    aspect-ratio: 1 / 2;
+    border-top: 3px solid #FFD700;
+    border-left: 3px solid #FFD700;
+    border-right: 3px solid #FFD700;
+    border-bottom: 3px solid #FFD700;
+  }
+
+  .info-text {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .parking-grid.top-grid .parking-spot:nth-child(n+5) {
+    border-top: none;
+  }
+
+  .parking-grid .parking-spot:nth-child(4n+2),
+  .parking-grid .parking-spot:nth-child(4n+3),
+  .parking-grid .parking-spot:nth-child(4n+4) {
+    border-left: none;
+  }
+
+  .info-text {
     padding: 10px 12px;
     font-size: 12px;
   }
@@ -117,40 +218,87 @@ export default {
 /* 태블릿 (481px ~ 768px) */
 @media (min-width: 481px) and (max-width: 768px) {
   .parking-map {
-    min-height: 250px;
+    height: 300px;
+    padding: 16px;
+    gap: 16px;
   }
 
-  .map-label {
+  .robot-status-text {
     font-size: 16px;
   }
 
-  .parking-info {
-    bottom: 14px;
-    width: calc(100% - 28px);
+  .parking-grids-container {
+    max-width: 450px;
   }
 
-  .info-badge {
+  .parking-grid {
+    gap: 0;
+  }
+
+  .parking-spot {
+    aspect-ratio: 1 / 2;
+    border-top: 5px solid #FFD700;
+    border-left: 5px solid #FFD700;
+    border-right: 5px solid #FFD700;
+    border-bottom: 5px solid #FFD700;
+  }
+
+  .parking-grid.top-grid .parking-spot:nth-child(n+5) {
+    border-top: none;
+  }
+
+  .parking-grid .parking-spot:nth-child(4n+2),
+  .parking-grid .parking-spot:nth-child(4n+3),
+  .parking-grid .parking-spot:nth-child(4n+4) {
+    border-left: none;
+  }
+
+  .info-text {
     padding: 11px 14px;
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 
 /* 데스크톱 (769px 이상) */
 @media (min-width: 769px) {
   .parking-map {
-    min-height: 400px;
+    height: 400px;
+    padding: 24px;
+    gap: 24px;
   }
 
-  .map-label {
-    font-size: 18px;
+  .robot-status-text {
+    font-size: 20px;
+    margin-bottom: 12px;
   }
 
-  .parking-info {
-    bottom: 18px;
-    width: calc(100% - 36px);
+  .parking-grids-container {
+    max-width: 600px;
   }
 
-  .info-badge {
+  .parking-grid {
+    gap: 0;
+  }
+
+  .parking-spot {
+    aspect-ratio: 1 / 2;
+    border-top: 8px solid #FFD700;
+    border-left: 8px solid #FFD700;
+    border-right: 8px solid #FFD700;
+    border-bottom: 8px solid #FFD700;
+  }
+
+  .parking-grid.top-grid .parking-spot:nth-child(n+5) {
+    border-top: none;
+  }
+
+  .parking-grid .parking-spot:nth-child(4n+2),
+  .parking-grid .parking-spot:nth-child(4n+3),
+  .parking-grid .parking-spot:nth-child(4n+4) {
+    border-left: none;
+  }
+
+  .info-text {
     padding: 14px 18px;
     font-size: 16px;
   }

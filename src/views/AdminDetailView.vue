@@ -71,6 +71,7 @@ export default defineComponent({
 <style scoped>
 .admin-detail-container {
   min-height: 100vh;
+  background-color: #1B4300;
   padding: 20px;
   padding-top: 80px;
   padding-left: 70px;
@@ -94,7 +95,7 @@ export default defineComponent({
   left: 20px;
   background: transparent;
   border: none;
-  color: #000000;
+  color: #ffffff;
   font-size: 24px;
   cursor: pointer;
   z-index: 9999;
@@ -103,52 +104,71 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.back-btn:hover {
+  opacity: 0.7;
 }
 
 .close-btn {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: transparent;
+  background: #ffffff;
   border: 1px solid #000;
   color: #000000;
   font-size: 18px;
   cursor: pointer;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
 }
 
 .card-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #000;
-  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 24px;
   display: flex;
   gap: 20px;
   box-sizing: border-box;
   width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .card-image {
   width: 100px;
   height: 100px;
-  border: 1px solid #000;
+  border: 1px solid #ccc;
   flex-shrink: 0;
-  background: #fff;
+  background: #f5f5f5;
   box-sizing: border-box;
+  border-radius: 4px;
 }
 
 .card-content {
@@ -163,17 +183,19 @@ export default defineComponent({
   display: flex;
   align-items: flex-start;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .label {
-  font-weight: 500;
+  font-weight: 600;
   margin-right: 8px;
-  min-width: 50px;
+  min-width: 60px;
+  color: #333;
 }
 
 .value {
   flex: 1;
+  color: #666;
 }
 
 /* 모바일 (480px 이하) */
@@ -192,26 +214,28 @@ export default defineComponent({
   .back-btn {
     top: 12px;
     left: 12px;
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
   }
 
   .close-btn {
     top: 12px;
     right: 12px;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
   }
 
   .card-list {
     gap: 16px;
+    max-width: 100%;
   }
 
   .card {
     padding: 16px;
     gap: 16px;
+    border-radius: 6px;
   }
 
   .card-image {
@@ -225,10 +249,16 @@ export default defineComponent({
 
   .card-row {
     font-size: 14px;
+    line-height: 1.5;
   }
 
   .label {
-    min-width: 45px;
+    min-width: 50px;
+    font-size: 14px;
+  }
+
+  .value {
+    font-size: 14px;
   }
 }
 
@@ -241,11 +271,11 @@ export default defineComponent({
   }
 
   .card-list {
-    max-width: 500px;
+    max-width: 600px;
   }
 
   .card {
-    padding: 18px;
+    padding: 20px;
     gap: 18px;
   }
 
@@ -256,6 +286,10 @@ export default defineComponent({
 
   .card-row {
     font-size: 15px;
+  }
+
+  .label {
+    min-width: 55px;
   }
 }
 
@@ -268,11 +302,11 @@ export default defineComponent({
   }
 
   .card-list {
-    max-width: 600px;
+    max-width: 900px;
   }
 
   .card {
-    padding: 24px;
+    padding: 28px;
     gap: 24px;
   }
 
@@ -282,10 +316,20 @@ export default defineComponent({
   }
 
   .card-content {
-    gap: 14px;
+    gap: 16px;
   }
 
   .card-row {
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  .label {
+    min-width: 70px;
+    font-size: 17px;
+  }
+
+  .value {
     font-size: 17px;
   }
 }
