@@ -35,7 +35,7 @@ export interface ParkedCar {
   parkedTime: string
 }
 
-// 등록 차량 조회(조회/출차) 응답 구조
+// 등록된 차량 조회(조회/출차) 응답 구조
 export interface RegisterCar {
   vehicleId: number
   plate: string

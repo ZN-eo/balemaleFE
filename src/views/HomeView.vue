@@ -113,35 +113,34 @@ export default {
 }
 
 .top-section {
-  padding: 10px;
-  padding-top: 60px;
+  padding: 20px;
+  padding-top: 80px;
   padding-left: 70px;
+  padding-bottom: 0;
   width: 100%;
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .robot-status {
   border: 1px solid #000;
   background: #fff;
-  padding: 10px;
+  padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
   color: #000;
-  font-size: 14px;
 }
 
 .middle-section {
-  flex: 1;
-  padding: 10px;
+  flex: 0 0 auto;
+  padding: 0 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 0;
+  min-height: auto;
 }
 
 .status-banner {
@@ -153,14 +152,16 @@ export default {
 }
 
 .bottom-section {
+  flex: 1;
   padding: 10px;
   width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-shrink: 0;
+  min-height: 0;
 }
 
 .keypad-container {
@@ -170,22 +171,22 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 21px;
 }
 
 .input-fields {
   display: flex;
-  gap: 8px;
+  gap: 18px;
   justify-content: center;
 }
 
 .input-field {
-  width: 60px;
-  height: 60px;
+  width: clamp(73px, 21vw, 94px);
+  height: clamp(73px, 21vw, 94px);
   border: 1px solid #000;
   background: #fff;
   text-align: center;
-  font-size: 24px;
+  font-size: clamp(28px, 8vw, 36px);
   box-sizing: border-box;
   border-radius: 8px;
 }
@@ -193,23 +194,23 @@ export default {
 .keypad {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-width: 300px;
+  gap: 16px;
+  max-width: 470px;
   margin: 0 auto;
 }
 
 .keypad-row {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   justify-content: center;
 }
 
 .keypad-btn {
-  width: 60px;
-  height: 60px;
+  width: clamp(81px, 23vw, 101px);
+  height: clamp(81px, 23vw, 101px);
   border: 1px solid #000;
   background: #fff;
-  font-size: 18px;
+  font-size: clamp(23px, 6.5vw, 29px);
   cursor: pointer;
   box-sizing: border-box;
   border-radius: 8px;
@@ -227,6 +228,7 @@ export default {
     padding: 12px;
     padding-top: 64px;
     padding-left: 12px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -235,8 +237,8 @@ export default {
   }
 
   .middle-section {
-    padding: 12px;
-    gap: 12px;
+    padding: 0 12px;
+    gap: 0;
   }
 
   .status-banner {
@@ -249,20 +251,20 @@ export default {
   }
 
   .input-field {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
+    width: 73px;
+    height: 73px;
+    font-size: 29px;
   }
 
   .keypad {
     max-width: 100%;
-    gap: 6px;
+    gap: 13px;
   }
 
   .keypad-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 16px;
+    width: 81px;
+    height: 81px;
+    font-size: 23px;
   }
 }
 
@@ -272,6 +274,7 @@ export default {
     padding: 16px;
     padding-top: 72px;
     padding-left: 16px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -279,7 +282,7 @@ export default {
   }
 
   .middle-section {
-    padding: 16px;
+    padding: 0 16px;
   }
 
   .status-banner {
@@ -291,15 +294,15 @@ export default {
   }
 
   .input-field {
-    width: 55px;
-    height: 55px;
-    font-size: 22px;
+    width: 83px;
+    height: 83px;
+    font-size: 31px;
   }
 
   .keypad-btn {
-    width: 55px;
-    height: 55px;
-    font-size: 17px;
+    width: 83px;
+    height: 83px;
+    font-size: 23px;
   }
 }
 
@@ -314,6 +317,7 @@ export default {
     padding: 24px;
     padding-top: 96px;
     padding-left: 24px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -322,7 +326,7 @@ export default {
   }
 
   .middle-section {
-    padding: 24px;
+    padding: 0 24px;
   }
 
   .status-banner {
@@ -335,9 +339,9 @@ export default {
   }
 
   .input-field {
-    width: 70px;
-    height: 70px;
-    font-size: 28px;
+    width: 94px;
+    height: 94px;
+    font-size: 36px;
   }
 
   .keypad {
@@ -345,9 +349,9 @@ export default {
   }
 
   .keypad-btn {
-    width: 70px;
-    height: 70px;
-    font-size: 20px;
+    width: 94px;
+    height: 94px;
+    font-size: 29px;
   }
 }
 </style>

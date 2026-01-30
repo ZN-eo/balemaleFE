@@ -12,13 +12,15 @@
 
     <!-- 하단 섹션 - 버튼 영역 -->
     <div class="bottom-section">
-      <div class="button-container">
-        <button @click="goToExitList" class="action-btn exit-btn">
-          조회 / 출차
-        </button>
-        <button @click="goToEntryList" class="action-btn entry-btn">
-          입차
-        </button>
+      <div class="action-panel">
+        <div class="button-container">
+          <button @click="goToExitList" class="action-btn exit-btn">
+            조회 / 출차
+          </button>
+          <button @click="goToEntryList" class="action-btn entry-btn">
+            입차
+          </button>
+        </div>
       </div>
       <button @click="goToHome" class="prev-btn">이전</button>
     </div>
@@ -69,9 +71,13 @@ export default {
 .select-container {
   display: flex;
   flex-direction: column;
+  /* 모바일 주소창 변화까지 고려 */
   min-height: 100vh;
+  min-height: 100svh;
+  height: 100dvh;
   width: 100%;
   overflow-x: hidden;
+  overflow-y: hidden;
   box-sizing: border-box;
   background-color: #1B4300;
 }
@@ -80,6 +86,7 @@ export default {
   padding: 20px;
   padding-top: 80px;
   padding-left: 70px;
+  padding-bottom: 0;
   width: 100%;
   box-sizing: border-box;
 }
@@ -95,15 +102,15 @@ export default {
 }
 
 .middle-section {
-  flex: 1;
-  padding: 10px;
+  flex: 0 0 auto;
+  padding: 0 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 0;
+  min-height: auto;
 }
 
 .status-banner {
@@ -115,6 +122,7 @@ export default {
 }
 
 .bottom-section {
+  flex: 1;
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -123,23 +131,37 @@ export default {
   flex-direction: column;
   gap: 16px;
   align-items: flex-start;
+  justify-content: space-between;
+  min-height: 0;
+}
+
+.action-panel {
+  width: 100%;
+  flex: 1;
+  background: #1B4300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(28px, 7vw, 60px) clamp(16px, 4vw, 32px);
+  box-sizing: border-box;
+  border-radius: 8px;
 }
 
 .button-container {
   display: flex;
-  gap: 20px;
+  gap: clamp(28px, 8vw, 80px);
   justify-content: center;
   width: 100%;
+  max-width: 520px;
 }
 
 .action-btn {
-  flex: 1;
-  max-width: 200px;
+  width: clamp(140px, 26vw, 190px);
   aspect-ratio: 1;
   border: 1px solid #000;
   background-color: #fff;
   color: #000;
-  font-size: 24px;
+  font-size: clamp(20px, 5vw, 30px);
   font-weight: bold;
   cursor: pointer;
   box-sizing: border-box;
@@ -168,6 +190,7 @@ export default {
     padding: 12px;
     padding-top: 64px;
     padding-left: 12px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -176,8 +199,8 @@ export default {
   }
 
   .middle-section {
-    padding: 12px;
-    gap: 12px;
+    padding: 0 12px;
+    gap: 0;
   }
 
   .status-banner {
@@ -190,13 +213,14 @@ export default {
     gap: 12px;
   }
 
-  .button-container {
-    gap: 12px;
+  .action-panel {
+    padding: 22px 14px;
+    border-radius: 8px;
   }
 
+  /* clamp로 자동 스케일되지만, 모바일에서 버튼이 너무 커지는 것 방지 */
   .action-btn {
     max-width: 150px;
-    font-size: 18px;
   }
 
   .prev-btn {
@@ -211,6 +235,7 @@ export default {
     padding: 16px;
     padding-top: 72px;
     padding-left: 16px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -218,7 +243,7 @@ export default {
   }
 
   .middle-section {
-    padding: 16px;
+    padding: 0 16px;
   }
 
   .status-banner {
@@ -230,13 +255,9 @@ export default {
     gap: 14px;
   }
 
-  .button-container {
-    gap: 16px;
-  }
-
-  .action-btn {
-    max-width: 180px;
-    font-size: 20px;
+  /* clamp로 자동 스케일 */
+  .action-panel {
+    padding: 34px 18px;
   }
 
   .prev-btn {
@@ -256,6 +277,7 @@ export default {
     padding: 24px;
     padding-top: 96px;
     padding-left: 24px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -264,7 +286,7 @@ export default {
   }
 
   .middle-section {
-    padding: 24px;
+    padding: 0 24px;
   }
 
   .status-banner {
@@ -277,13 +299,9 @@ export default {
     gap: 18px;
   }
 
-  .button-container {
-    gap: 24px;
-  }
-
-  .action-btn {
-    max-width: 250px;
-    font-size: 28px;
+  /* clamp로 자동 스케일 */
+  .action-panel {
+    padding: 56px 24px;
   }
 
   .prev-btn {

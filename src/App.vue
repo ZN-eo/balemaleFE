@@ -1,26 +1,17 @@
-<script setup lang="ts">
-// import { onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { computed } from 'vue'
-// import { usePublicStore } from './stores/publicStore'
-// import { useAdminStore } from './stores/adminStore'
-
-const router = useRouter()
-const route = useRoute()
-// const publicStore = usePublicStore()
-// const adminStore = useAdminStore()
-
-// onMounted(() => {
-//   publicStore.initSocketConnection()
-// })
-
-const goToAdmin = () => {
-  router.push('/admin/login')
+<script>
+export default {
+  name: 'App',
+  computed: {
+    isAdminRoute() {
+      return this.$route.path.startsWith('/admin')
+    }
+  },
+  methods: {
+    goToAdmin() {
+      this.$router.push('/admin/login')
+    }
+  }
 }
-
-const isAdminRoute = computed(() => {
-  return route.path.startsWith('/admin')
-})
 </script>
 
 <template>
@@ -33,7 +24,8 @@ const isAdminRoute = computed(() => {
 .admin-btn {
   position: fixed;
   top: 20px;
-  left: 70px;
+  /* max-width: 1200 컨테이너(중앙정렬) 안쪽 기준으로 위치 */
+  left: max(70px, calc(50% - 600px + 70px));
   width: 50px;
   height: 50px;
   background: transparent;
@@ -46,7 +38,7 @@ const isAdminRoute = computed(() => {
 @media (max-width: 480px) {
   .admin-btn {
     top: 12px;
-    left: 12px;
+    left: max(12px, calc(50% - 600px + 12px));
     width: 40px;
     height: 40px;
   }
@@ -56,7 +48,7 @@ const isAdminRoute = computed(() => {
 @media (min-width: 481px) and (max-width: 768px) {
   .admin-btn {
     top: 16px;
-    left: 16px;
+    left: max(16px, calc(50% - 600px + 16px));
     width: 45px;
     height: 45px;
   }
@@ -66,7 +58,7 @@ const isAdminRoute = computed(() => {
 @media (min-width: 769px) {
   .admin-btn {
     top: 24px;
-    left: 24px;
+    left: max(24px, calc(50% - 600px + 24px));
     width: 60px;
     height: 60px;
   }

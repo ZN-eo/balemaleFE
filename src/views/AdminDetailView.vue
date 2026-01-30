@@ -29,48 +29,32 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-export default defineComponent({
+<script>
+export default {
   name: 'AdminDetailView',
-  setup() {
-    const router = useRouter()
-    
-    const cardList = ref([
-      {
-        target: '',
-        time: '',
-        location: ''
-      },
-      {
-        target: '',
-        time: '',
-        location: ''
-      }
-    ])
-
-    const goBack = () => {
-      router.go(-1)
-    }
-
-    const goHome = () => {
-      router.push('/')
-    }
-
+  data() {
     return {
-      cardList,
-      goBack,
-      goHome
+      cardList: [
+        { target: '', time: '', location: '' },
+        { target: '', time: '', location: '' }
+      ]
+    }
+  },
+  methods: {
+    goBack() {
+      this.$router.go(-1)
+    },
+    goHome() {
+      this.$router.push('/')
     }
   }
-})
+}
 </script>
 
 <style scoped>
 .admin-detail-container {
   min-height: 100vh;
+  width: 100%;
   background-color: #1B4300;
   padding: 20px;
   padding-top: 80px;
@@ -90,15 +74,11 @@ export default defineComponent({
 }
 
 .back-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
   background: transparent;
   border: none;
   color: #ffffff;
   font-size: 24px;
   cursor: pointer;
-  z-index: 9999;
   width: 40px;
   height: 40px;
   display: flex;
@@ -112,9 +92,6 @@ export default defineComponent({
 }
 
 .close-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
   background: #ffffff;
   border: 1px solid #000;
   color: #000000;
@@ -126,7 +103,6 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
   transition: background-color 0.2s;
 }
 
@@ -212,16 +188,12 @@ export default defineComponent({
   }
 
   .back-btn {
-    top: 12px;
-    left: 12px;
     font-size: 20px;
     width: 36px;
     height: 36px;
   }
 
   .close-btn {
-    top: 12px;
-    right: 12px;
     width: 36px;
     height: 36px;
     font-size: 16px;
@@ -299,6 +271,12 @@ export default defineComponent({
     padding: 24px;
     padding-top: 96px;
     padding-left: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header {
+    padding: 0;
   }
 
   .card-list {

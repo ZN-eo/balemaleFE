@@ -6,6 +6,7 @@
     <div class="middle-section">
       <ParkingMap />
     </div>
+    <div class="bottom-section"></div>
   </div>
 </template>
 
@@ -35,34 +36,47 @@ export default {
 }
 
 .top-section {
-  padding: 10px;
-  padding-top: 60px;
+  padding: 20px;
+  padding-top: 80px;
   padding-left: 70px;
+  padding-bottom: 0;
   width: 100%;
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .robot-status {
   border: 1px solid #000;
   background: #fff;
-  padding: 10px;
+  padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
   color: #000;
-  font-size: 14px;
 }
 
 .middle-section {
-  flex: 1;
-  padding: 10px;
+  flex: 0 0 auto;
+  padding: 0 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  min-height: auto;
+}
+
+.bottom-section {
+  flex: 1;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
   min-height: 0;
 }
 
@@ -72,6 +86,7 @@ export default {
     padding: 12px;
     padding-top: 64px;
     padding-left: 12px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -80,8 +95,14 @@ export default {
   }
 
   .middle-section {
+    padding: 0 12px;
+    gap: 0;
+  }
+
+  .bottom-section {
     padding: 12px;
     gap: 12px;
+    justify-content: space-between;
   }
 }
 
@@ -91,6 +112,7 @@ export default {
     padding: 16px;
     padding-top: 72px;
     padding-left: 16px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -98,7 +120,13 @@ export default {
   }
 
   .middle-section {
+    padding: 0 16px;
+  }
+
+  .bottom-section {
     padding: 16px;
+    gap: 14px;
+    justify-content: space-between;
   }
 }
 
@@ -113,6 +141,7 @@ export default {
     padding: 24px;
     padding-top: 96px;
     padding-left: 24px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -121,7 +150,13 @@ export default {
   }
 
   .middle-section {
+    padding: 0 24px;
+  }
+
+  .bottom-section {
     padding: 24px;
+    gap: 18px;
+    justify-content: space-between;
   }
 }
 </style>

@@ -8,21 +8,35 @@
     <!-- 중간 섹션 - 주차장 맵 -->
     <div class="middle-section">
       <ParkingMap />
-      <div class="card-list">
-        <button
-          v-for="(car, index) in cars"
-          :key="car.vehicleId || index"
-          class="car-card"
-          @click="selectCar(car)"
-        >
-          {{ car.plate }}
-        </button>
-      </div>
     </div>
 
     <!-- 하단 섹션 -->
     <div class="bottom-section">
-      <button @click="goBack" class="prev-btn">이전</button>
+      <div class="list-panel" :class="{ 'is-empty': loading || !!errorMessage || cars.length === 0 }">
+        <div v-if="loading" class="empty-panel">
+          <div class="empty-text">조회 중...</div>
+        </div>
+        <div v-else-if="errorMessage" class="empty-panel">
+          <div class="empty-text error">{{ errorMessage }}</div>
+        </div>
+        <div v-else-if="cars.length === 0" class="empty-panel">
+          <div class="empty-text error">일치하는 차량이 없습니다</div>
+        </div>
+
+        <div v-else class="card-list">
+          <button
+            v-for="(car, index) in cars"
+            :key="car.vehicleId || index"
+            type="button"
+            class="car-card"
+            @click="selectCar(car)"
+          >
+            {{ car.plate }}
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="prev-btn" @click="goBack">이전</button>
     </div>
   </div>
 </template>
@@ -42,24 +56,32 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const cars = ref([])
+    const loading = ref(true)
+    const errorMessage = ref('')
 
     const vehicleFourNumberRaw = route.query.vehicleFourNumber
     const vehicleFourNumber =
       Array.isArray(vehicleFourNumberRaw) ? vehicleFourNumberRaw[0] : vehicleFourNumberRaw
 
     const fetchCars = async () => {
+      loading.value = true
+      errorMessage.value = ''
       try {
         if (!vehicleFourNumber || String(vehicleFourNumber).length !== 4) {
           cars.value = []
+          errorMessage.value = '차량 번호 4자리를 다시 입력해주세요.'
           return
         }
         const response = await getRegisterCars(String(vehicleFourNumber))
         cars.value = response?.data?.data ?? []
       } catch (error) {
         cars.value = []
+        errorMessage.value = '차량 목록 조회에 실패했습니다.'
         if (import.meta.env.DEV) {
           console.warn('차량 목록 조회 실패:', error)
         }
+      } finally {
+        loading.value = false
       }
     }
 
@@ -83,6 +105,8 @@ export default {
 
     return {
       cars,
+      loading,
+      errorMessage,
       selectCar,
       goBack
     }
@@ -105,6 +129,7 @@ export default {
   padding: 20px;
   padding-top: 80px;
   padding-left: 70px;
+  padding-bottom: 0;
   width: 100%;
   box-sizing: border-box;
 }
@@ -120,19 +145,19 @@ export default {
 }
 
 .middle-section {
-  flex: 1;
-  padding: 10px;
+  flex: 0 0 auto;
+  padding: 0 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 0;
-  align-items: center;
+  min-height: auto;
 }
 
 .bottom-section {
+  flex: 1;
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -141,29 +166,79 @@ export default {
   flex-direction: column;
   gap: 16px;
   align-items: flex-start;
+  justify-content: space-between;
+  min-height: 0;
 }
 
-.card-list {
-  width: 66.67%;
-  background: #fff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-sizing: border-box;
-  border-radius: 8px;
-}
-
-.car-card {
+.complete-panel {
   width: 100%;
   border: 1px solid #000;
-  background: #d9d9d9;
-  padding: 18px 16px;
-  font-size: 22px;
+  background: #fff;
+  padding: 4px 20px;
+  font-size: 45px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
   cursor: pointer;
   box-sizing: border-box;
   border-radius: 12px;
-  text-align: left;
+}
+
+.list-panel {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 조회중/에러/0건일 때만 큰 흰 패널로 표시 */
+.list-panel.is-empty {
+  background: #fff;
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.empty-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  min-height: 0;
+}
+
+.empty-text {
+  text-align: center;
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #000;
+}
+
+.empty-text.error {
+  color: #d32f2f;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* 차량번호 카드(버튼) = EntryCompleteView의 plate-box 느낌 */
+.car-card {
+  width: 100%;
+  border: 1px solid #000;
+  background: #fff;
+  padding: 4px 20px;
+  font-size: 45px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  cursor: pointer;
+  box-sizing: border-box;
+  border-radius: 12px;
 }
 
 .prev-btn {
@@ -173,7 +248,7 @@ export default {
   padding: 12px 24px;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 12px;
   box-sizing: border-box;
 }
 
@@ -183,6 +258,7 @@ export default {
     padding: 12px;
     padding-top: 64px;
     padding-left: 12px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -191,23 +267,17 @@ export default {
   }
 
   .middle-section {
-    padding: 12px;
-    gap: 12px;
+    padding: 0 12px;
+    gap: 0;
   }
 
   .bottom-section {
     padding: 12px;
     gap: 12px;
+    justify-content: space-between;
   }
-
-  .card-list {
-    width: 66.67%;
+  .list-panel {
     padding: 12px;
-  }
-
-  .car-card {
-    padding: 14px 12px;
-    font-size: 18px;
   }
 
   .prev-btn {
@@ -222,6 +292,7 @@ export default {
     padding: 16px;
     padding-top: 72px;
     padding-left: 16px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -229,22 +300,16 @@ export default {
   }
 
   .middle-section {
-    padding: 16px;
+    padding: 0 16px;
   }
 
   .bottom-section {
     padding: 16px;
     gap: 14px;
+    justify-content: space-between;
   }
-
-  .card-list {
-    width: 66.67%;
+  .list-panel {
     padding: 16px;
-  }
-
-  .car-card {
-    padding: 16px 14px;
-    font-size: 20px;
   }
 
   .prev-btn {
@@ -264,6 +329,7 @@ export default {
     padding: 24px;
     padding-top: 96px;
     padding-left: 24px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -272,27 +338,22 @@ export default {
   }
 
   .middle-section {
-    padding: 24px;
+    padding: 0 24px;
   }
 
   .bottom-section {
     padding: 24px;
     gap: 18px;
-  }
-
-  .card-list {
-    width: 66.67%;
-    padding: 24px;
-  }
-
-  .car-card {
-    padding: 20px 18px;
-    font-size: 24px;
+    justify-content: space-between;
   }
 
   .prev-btn {
     padding: 14px 28px;
     font-size: 18px;
+  }
+
+  .list-panel {
+    padding: 24px;
   }
 }
 </style>

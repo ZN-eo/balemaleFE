@@ -24,39 +24,28 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-export default defineComponent({
+<script>
+export default {
   name: 'AdminLogin',
-  setup() {
-    const router = useRouter()
-    const id = ref('')
-    const password = ref('')
-
-    // 간단한 로그인 처리
-    const login = () => {
-      // 로그인 완료시 관리자 상세 페이지로 이동
-      if (id.value && password.value) {
-        router.push('/admin/detail')
+  data() {
+    return {
+      id: '',
+      password: ''
+    }
+  },
+  methods: {
+    login() {
+      if (this.id && this.password) {
+        this.$router.push('/admin/detail')
       } else {
         alert('ID와 비밀번호를 입력하세요.')
       }
-    }
-
-    const goHome = () => {
-      router.push('/')
-    }
-
-    return {
-      id,
-      password,
-      login,
-      goHome
+    },
+    goHome() {
+      this.$router.push('/')
     }
   }
-})
+}
 </script>
 
 <style scoped>
@@ -65,6 +54,7 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  width: 100%;
   background-color: #1B4300;
   padding: 20px;
   position: relative;
@@ -218,6 +208,8 @@ export default defineComponent({
 @media (min-width: 769px) {
   .admin-login-container {
     padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .back-btn {

@@ -12,10 +12,16 @@
 
     <!-- 하단 섹션 (차량 카드 리스트) -->
     <div class="bottom-section">
-      <div class="list-panel">
-        <div v-if="loading" class="helper-text">조회 중...</div>
-        <div v-else-if="errorMessage" class="helper-text error">{{ errorMessage }}</div>
-        <div v-else-if="cars.length === 0" class="helper-text">일치하는 차량이 없습니다.</div>
+      <div class="list-panel" :class="{ 'is-empty': loading || !!errorMessage || cars.length === 0 }">
+        <div v-if="loading" class="empty-panel">
+          <div class="empty-text">조회 중...</div>
+        </div>
+        <div v-else-if="errorMessage" class="empty-panel">
+          <div class="empty-text error">{{ errorMessage }}</div>
+        </div>
+        <div v-else-if="cars.length === 0" class="empty-panel">
+          <div class="empty-text error">일치하는 차량이 없습니다</div>
+        </div>
 
         <div v-else class="card-list">
           <button
@@ -124,6 +130,7 @@ export default {
   padding: 20px;
   padding-top: 80px;
   padding-left: 70px;
+  padding-bottom: 0;
   width: 100%;
   box-sizing: border-box;
 }
@@ -139,18 +146,19 @@ export default {
 }
 
 .middle-section {
-  flex: 1;
-  padding: 10px;
+  flex: 0 0 auto;
+  padding: 0 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 0;
+  min-height: auto;
 }
 
 .bottom-section {
+  flex: 1;
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -159,22 +167,45 @@ export default {
   flex-direction: column;
   gap: 16px;
   align-items: flex-start;
+  justify-content: space-between;
+  min-height: 0;
 }
 
 .list-panel {
   width: 100%;
-  border: 1px solid #000;
   padding: 20px;
   box-sizing: border-box;
 }
 
-.helper-text {
-  text-align: center;
-  padding: 12px 0;
+/* 조회중/에러/0건일 때만 큰 흰 패널로 표시 */
+.list-panel.is-empty {
+  background: #fff;
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.helper-text.error {
-  color: #b00020;
+.empty-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  min-height: 0;
+}
+
+.empty-text {
+  text-align: center;
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #000;
+}
+
+.empty-text.error {
+  color: #d32f2f;
 }
 
 .card-list {
@@ -186,11 +217,14 @@ export default {
 
 /* 카드 = 버튼 (HomeView 버튼처럼 둥근 모서리) */
 .car-card {
-  width: 100%;
+  width: min(1104px, 98%);
+  height: 75px;
   border: 1px solid #000;
-  background: #d9d9d9;
-  padding: 18px 16px;
-  font-size: 22px;
+  background: #fff;
+  padding: 4px 20px;
+  font-size: 45px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
   cursor: pointer;
   box-sizing: border-box;
   border-radius: 12px;
@@ -213,6 +247,7 @@ export default {
     padding: 12px;
     padding-top: 64px;
     padding-left: 12px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -221,13 +256,14 @@ export default {
   }
 
   .middle-section {
-    padding: 12px;
-    gap: 12px;
+    padding: 0 12px;
+    gap: 0;
   }
 
   .bottom-section {
     padding: 12px;
     gap: 12px;
+    justify-content: space-between;
   }
 
   .list-panel {
@@ -235,8 +271,8 @@ export default {
   }
 
   .car-card {
-    padding: 14px 12px;
-    font-size: 18px;
+    padding: 4px 20px;
+    font-size: 45px;
   }
 
   .prev-btn {
@@ -251,6 +287,7 @@ export default {
     padding: 16px;
     padding-top: 72px;
     padding-left: 16px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -258,12 +295,13 @@ export default {
   }
 
   .middle-section {
-    padding: 16px;
+    padding: 0 16px;
   }
 
   .bottom-section {
     padding: 16px;
     gap: 14px;
+    justify-content: space-between;
   }
 
   .list-panel {
@@ -271,8 +309,8 @@ export default {
   }
 
   .car-card {
-    padding: 16px 14px;
-    font-size: 20px;
+    padding: 4px 20px;
+    font-size: 45px;
   }
 
   .prev-btn {
@@ -292,6 +330,7 @@ export default {
     padding: 24px;
     padding-top: 96px;
     padding-left: 24px;
+    padding-bottom: 0;
   }
 
   .robot-status {
@@ -300,12 +339,13 @@ export default {
   }
 
   .middle-section {
-    padding: 24px;
+    padding: 0 24px;
   }
 
   .bottom-section {
     padding: 24px;
     gap: 18px;
+    justify-content: space-between;
   }
 
   .list-panel {
@@ -313,8 +353,8 @@ export default {
   }
 
   .car-card {
-    padding: 20px 18px;
-    font-size: 24px;
+    padding: 4px 20px;
+    font-size: 45px;
   }
 
   .prev-btn {
