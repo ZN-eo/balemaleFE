@@ -6,7 +6,7 @@
         <div class="parking-grid top-grid">
           <div
             v-for="(spot, idx) in topGridSpots"
-            :key="`top-${idx}`"
+            :key="spot.slotId ?? `top-${idx}`"
             class="parking-spot"
             :class="{ occupied: spot.occupied }"
           ></div>
@@ -18,11 +18,11 @@
         <div class="parking-grid bottom-grid">
           <div
             v-for="(spot, idx) in bottomGridSpots"
-            :key="`bottom-${idx}`"
+            :key="spot.slotId ?? `bottom-${idx}`"
             class="parking-spot"
             :class="{ occupied: spot.occupied }"
           >
-            <span v-if="idx <= 1" class="disabled-icon" aria-hidden="true">♿</span>
+            <span v-if="spot.isDisabled" class="disabled-icon" aria-hidden="true">♿</span>
           </div>
         </div>
       </div>
@@ -46,20 +46,43 @@
 
 <script>
 import { ref, onMounted } from 'vue'
-import { getAvailableParkingCount } from '@/api/modules/public'
+import { getAvailableParkingCount, getParkingMap } from '@/api/modules/public'
+
+// API 슬롯 → 그리드용 스팟 (occupied, isDisabled, slotId)
+function toSpot(slot) {
+  return {
+    slotId: slot.slotId,
+    occupied: slot.slotStatus === 'OCCUPIED',
+    isDisabled: slot.slotType === 'DISABLED'
+  }
+}
+
+function applyMapList(list, topGridSpots, bottomGridSpots) {
+  if (!Array.isArray(list) || list.length < 12) {
+    topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
+    bottomGridSpots.value = Array.from({ length: 4 }, (_, i) => ({ occupied: false, isDisabled: i < 2 }))
+    return
+  }
+  bottomGridSpots.value = list.slice(0, 4).map(toSpot)
+  const bRow = list.slice(4, 8).map(toSpot)
+  const cRow = list.slice(8, 12).map(toSpot)
+  topGridSpots.value = [...cRow, ...bRow]
+}
 
 export default {
   name: 'ParkingMap',
-  setup() {
-    // 상단 그리드: 2행 4열 (8개)
-    const topGridSpots = ref(
-      Array.from({ length: 8 }, () => ({ occupied: false }))
-    )
-    
-    // 하단 그리드: 1행 4열 (4개)
-    const bottomGridSpots = ref(
-      Array.from({ length: 4 }, () => ({ occupied: false }))
-    )
+  props: {
+    /** 입차/정산 완료 후 넘긴 최신 맵 데이터 있으면 사용, 없으면 mount 시 API 호출 */
+    initialMapData: {
+      type: Array,
+      default: null
+    }
+  },
+  setup(props) {
+    // 상단 그리드: 2행 4열 = C1~C4(1행), B1~B4(2행)
+    const topGridSpots = ref([])
+    // 하단 그리드: 1행 4열 = A1~A4
+    const bottomGridSpots = ref([])
 
     const parkingCount = ref({
       normalCount: 0,
@@ -67,7 +90,20 @@ export default {
       totalCount: 0
     })
 
-    // 주차장 잔여수 조회 (실패 시 기본값 0 유지, 백엔드 미연결 시 ERR_CONNECTION_REFUSED)
+    const fetchParkingMap = async () => {
+      try {
+        const res = await getParkingMap()
+        const list = res.data?.data ?? res.data ?? []
+        applyMapList(list, topGridSpots, bottomGridSpots)
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.warn('주차장 맵 조회 실패:', error?.message || error)
+        }
+        topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
+        bottomGridSpots.value = Array.from({ length: 4 }, (_, idx) => ({ occupied: false, isDisabled: idx < 2 }))
+      }
+    }
+
     const fetchParkingCount = async () => {
       try {
         const response = await getAvailableParkingCount()
@@ -75,14 +111,19 @@ export default {
           parkingCount.value = response.data.data
         }
       } catch (error) {
-        // 백엔드 서버가 꺼져 있거나 baseURL 잘못되면 ERR_CONNECTION_REFUSED 발생
         if (import.meta.env.DEV) {
-          console.warn('주차장 잔여수 조회 실패 (백엔드 미연결 시 정상). VITE_API_BASE_URL 확인 후 서버 실행 여부 확인:', error?.message || error)
+          console.warn('주차장 잔여수 조회 실패:', error?.message || error)
         }
       }
     }
 
     onMounted(() => {
+      const list = props.initialMapData
+      if (Array.isArray(list) && list.length >= 12) {
+        applyMapList(list, topGridSpots, bottomGridSpots)
+      } else {
+        fetchParkingMap()
+      }
       fetchParkingCount()
     })
 
@@ -100,7 +141,6 @@ export default {
   /* responsive scale tokens */
   --map-padding: clamp(12px, 2.6vw, 16px);
   --section-gap: clamp(12px, 3vw, 18px);
-  --grid-gap: clamp(8px, 2.2vw, 10px);
   --border: clamp(5px, 1.6vw, 8px);
   --zone-padding: clamp(8px, 2.2vw, 10px);
   --badge-font: clamp(12px, 2.6vw, 16px);
@@ -134,7 +174,7 @@ export default {
 .parking-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--grid-gap);
+  gap: 0;
   width: 100%;
   box-sizing: border-box;
 }
@@ -149,20 +189,31 @@ export default {
 
 .zone {
   width: 100%;
-  border: var(--border) solid #8b8b8b;
   padding: var(--zone-padding);
   box-sizing: border-box;
   background: #fff;
 }
 
+/* 칸마다 한쪽만 border → 붙어 보이게 (겹침 방지) */
 .parking-spot {
   aspect-ratio: 1 / 1;
-  border: var(--border) solid #8b8b8b;
+  border-right: var(--border) solid #8b8b8b;
+  border-bottom: var(--border) solid #8b8b8b;
+  border-left: none;
+  border-top: none;
   background: #fff;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.parking-spot:nth-child(4n + 1) {
+  border-left: var(--border) solid #8b8b8b;
+}
+
+.parking-spot:nth-child(-n + 4) {
+  border-top: var(--border) solid #8b8b8b;
 }
 
 .parking-spot.occupied {
@@ -229,11 +280,10 @@ export default {
   }
 
   .parking-grid {
-    gap: 8px;
+    gap: 0;
   }
 
   .zone {
-    border-width: 6px;
     padding: 8px;
   }
 
@@ -260,7 +310,7 @@ export default {
   }
 
   .parking-grid {
-    gap: 10px;
+    gap: 0;
   }
 
   .info-text {

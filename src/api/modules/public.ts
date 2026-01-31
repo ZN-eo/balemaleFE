@@ -1,5 +1,12 @@
 import { publicInstance } from '../index'
-import type { ApiResponse, Car, ParkedCar, RegisterCar, AvailableParkingCount } from '../types'
+import type {
+  ApiResponse,
+  Car,
+  ParkedCar,
+  RegisterCar,
+  AvailableParkingCount,
+  ParkingMapSlot
+} from '../types'
 
 // 차량 목록 조회 api 호출
 export const getCars = () => {
@@ -28,4 +35,9 @@ export const getRegisterCars = (vehicleFourNumber: string) => {
 // 차량 가능 잔여수 조회 api 호출 # url 변경 완료
 export const getAvailableParkingCount = () => {
   return publicInstance.get<ApiResponse<AvailableParkingCount>>('/parking/remaining-number')
+}
+
+// 주차장 맵 데이터 조회 (모든 주차칸 정보, slotId 오름차순)
+export const getParkingMap = () => {
+  return publicInstance.get<ApiResponse<ParkingMapSlot[]>>('/parking/map')
 }

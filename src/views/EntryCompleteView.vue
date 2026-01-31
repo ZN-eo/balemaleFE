@@ -4,7 +4,7 @@
       <div class="robot-status">주차로봇 대기중</div>
     </div>
     <div class="middle-section">
-      <ParkingMap />
+      <ParkingMap :initial-map-data="parkingMapData" />
     </div>
     <div class="bottom-section">
       <div class="complete-panel">
@@ -34,6 +34,7 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const parkingMapData = history.state?.parkingMapData ?? null
 
     // 우선순위: query.plate(즉시 표출) → query.vehicleId로 백엔드 조회 후 plate 세팅
     const plateRaw = route.query.plate
@@ -70,7 +71,7 @@ export default {
       router.push('/')
     }
 
-    return { formattedPlate, goHome }
+    return { formattedPlate, goHome, parkingMapData }
   }
 }
 </script>

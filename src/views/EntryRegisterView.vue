@@ -27,7 +27,7 @@
 import ParkingMap from '@/components/ParkingMap.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getCars } from '@/api/modules/public'
+import { getCars, getParkingMap } from '@/api/modules/public'
 
 export default {
   name: 'EntryRegisterView',
@@ -72,14 +72,23 @@ export default {
       router.go(-1)
     }
 
-    const enter = () => {
+    const enter = async () => {
       const parsed = Number(vehicleIdValue)
+      let parkingMapData = null
+      try {
+        const res = await getParkingMap()
+        const list = res?.data?.data ?? res?.data ?? []
+        if (Array.isArray(list) && list.length >= 12) parkingMapData = list
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
+      }
       router.push({
         path: '/entry/complete',
         query: {
           ...(Number.isFinite(parsed) ? { vehicleId: String(parsed) } : {}),
           ...(plate.value ? { plate: plate.value } : {})
-        }
+        },
+        state: parkingMapData ? { parkingMapData } : {}
       })
     }
 

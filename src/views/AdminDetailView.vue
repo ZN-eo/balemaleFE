@@ -1,26 +1,25 @@
 <template>
   <div class="admin-detail-container">
-    <!-- 헤더 (드롭다운 오른쪽 배치) -->
+    <!-- 헤더 -->
     <div class="header">
       <button @click="goBack" class="back-btn">←</button>
-      <div class="header-right">
-        <div class="filter-wrap">
-          <select v-model="filterOption" class="filter-select" aria-label="정렬/필터">
-            <option value="latest">최신순</option>
-            <option value="oldest">오래된순</option>
-            <option value="human">사람</option>
-            <option value="obstacle">장애물</option>
-          </select>
-        </div>
-        <button @click="goHome" class="close-btn">✕</button>
-      </div>
+      <button @click="goHome" class="close-btn">✕</button>
     </div>
 
     <!-- 로딩 -->
     <div v-if="loading" class="loading">이상탐지 로그를 불러오는 중...</div>
 
-    <!-- 카드 리스트 (프론트 필터/정렬) -->
-    <div class="card-list" v-else>
+    <!-- 로그 카드 영역 (드롭다운 + 카드 리스트) -->
+    <div v-else class="card-section">
+      <div class="filter-row">
+        <select v-model="filterOption" class="filter-select" aria-label="정렬/필터">
+          <option value="latest">최신순</option>
+          <option value="oldest">오래된순</option>
+          <option value="human">사람</option>
+          <option value="obstacle">장애물</option>
+        </select>
+      </div>
+      <div class="card-list">
       <div class="card" v-for="item in filteredCardList" :key="item.id">
         <div class="card-content">
           <div class="card-row">
@@ -38,6 +37,7 @@
         </div>
       </div>
       <div v-if="filteredCardList.length === 0" class="empty">이상탐지 로그가 없습니다.</div>
+      </div>
     </div>
   </div>
 </template>
@@ -141,14 +141,19 @@ export default {
   padding: 0 10px;
 }
 
-.header-right {
+.card-section {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.filter-wrap {
-  flex-shrink: 0;
+.filter-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 4px;
 }
 
 .filter-select {

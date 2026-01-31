@@ -67,3 +67,13 @@ export interface AnomalyEventsPageResponse {
   size: number
   totalPages: number
 }
+
+// 주차장 맵 데이터 단건 (GET /parking/map)
+// slotId 기준 오름차순: 1-4 A1~A4(하단), 5-8 B1~B4(상단2행), 9-12 C1~C4(상단1행)
+export interface ParkingMapSlot {
+  slotId: number
+  nodeCode: string
+  nodeStatus: string // NORMAL | BLOCKED
+  slotType: string // NORMAL | DISABLED
+  slotStatus: string // EMPTY | OCCUPIED
+}

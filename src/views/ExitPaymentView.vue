@@ -52,7 +52,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
-import { getParkedCars } from '@/api/modules/public'
+import { getParkedCars, getParkingMap } from '@/api/modules/public'
 
 export default {
   name: 'ExitPaymentView',
@@ -127,9 +127,19 @@ export default {
       router.back()
     }
 
-    const pay = () => {
-      // TODO: 결제/정산 로직 연결
-      router.push('/exit/complete')
+    const pay = async () => {
+      let parkingMapData = null
+      try {
+        const res = await getParkingMap()
+        const list = res?.data?.data ?? res?.data ?? []
+        if (Array.isArray(list) && list.length >= 12) parkingMapData = list
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
+      }
+      router.push({
+        path: '/exit/complete',
+        state: parkingMapData ? { parkingMapData } : {}
+      })
     }
 
     return {

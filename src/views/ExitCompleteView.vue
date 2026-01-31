@@ -4,7 +4,7 @@
       <div class="robot-status">주차로봇 대기중</div>
     </div>
     <div class="middle-section">
-      <ParkingMap />
+      <ParkingMap :initial-map-data="parkingMapData" />
     </div>
     <div class="bottom-section"></div>
   </div>
@@ -19,7 +19,8 @@ export default {
     ParkingMap
   },
   setup() {
-    return {}
+    const parkingMapData = history.state?.parkingMapData ?? null
+    return { parkingMapData }
   }
 }
 </script>
