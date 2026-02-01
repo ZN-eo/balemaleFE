@@ -7,13 +7,32 @@
 
     <!-- 중간 섹션 -->
     <div class="middle-section">
-      <ParkingMap />
+      <ParkingMap
+        :highlighted-slot-code="parkedCar?.nodeCode ?? null"
+        highlight-variant="teal"
+      />
     </div>
 
     <!-- 하단 섹션 -->
-    <div class="bottom-section">
-      <!-- 차량 정보 표 (백엔드 ParkedCar 응답 구조) -->
-      <div class="info-panel">
+    <div
+      class="bottom-section"
+      :class="{ 'bottom-section--waiting-moving': vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING' }"
+    >
+      <!-- WAITING / MOVING 일 때만 차량번호 카드 + 상태 문구 표시 (PARKING이면 정산표만) -->
+      <template v-if="!loading && !loadError && parkedCar && (vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING')">
+        <div class="vehicle-card">{{ parkedCar.plate }}</div>
+        <div class="status-message">
+          <template v-if="vehicleStatus === 'MOVING'">
+            {{ parkedCar.nodeCode }} 위치에 주차중 입니다
+          </template>
+          <template v-else>
+            {{ parkedCar.nodeCode }} 위치에 주차 예정입니다
+          </template>
+        </div>
+      </template>
+
+      <!-- 차량 정보 표 (PARKING일 때만 표시) -->
+      <div v-if="vehicleStatus === 'PARKING'" class="info-panel">
         <div v-if="loading" class="info-loading">조회 중...</div>
         <div v-else-if="loadError" class="info-error">{{ loadError }}</div>
         <template v-else>
@@ -42,7 +61,22 @@
 
       <div class="action-bar">
         <button type="button" class="prev-btn" @click="goBack">이전</button>
-        <button type="button" class="pay-btn" @click="pay">정산하기</button>
+        <button
+          v-if="vehicleStatus === 'PARKING'"
+          type="button"
+          class="pay-btn"
+          @click="pay"
+        >
+          정산하기
+        </button>
+        <button
+          v-else
+          type="button"
+          class="pay-btn"
+          @click="goHome"
+        >
+          처음으로
+        </button>
       </div>
     </div>
   </div>
@@ -52,7 +86,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
-import { getParkedCars, getParkingMap } from '@/api/modules/public'
+import { getRegisterCars, getParkedCars, getParkingMap } from '@/api/modules/public'
 
 export default {
   name: 'ExitPaymentView',
@@ -65,35 +99,101 @@ export default {
     const parkedCar = ref(null)
     const loading = ref(true)
     const loadError = ref('')
+    /** RegisterCar.status (PARKING | WAITING | MOVING) - 문구 표시 판단용 */
+    const registerCarStatus = ref('')
 
     onMounted(async () => {
       // 1) 라우트 state로 전달된 ParkedCar가 있으면 사용 (직접 넘긴 경우)
       const stateCar = history.state?.parkedCar
       if (stateCar && stateCar.vehicleId != null) {
         parkedCar.value = stateCar
+        registerCarStatus.value = history.state?.registerCarStatus ?? 'PARKING'
         loading.value = false
         return
       }
-      // 2) exit/list에서 query.vehicleId로 들어온 경우 → API로 상세 조회
+
+      // 2) register-vehicles로 먼저 조회 후 status별 분기
+      const vehicleFourNumberRaw = route.query.vehicleFourNumber
+      const vehicleFourNumber =
+        Array.isArray(vehicleFourNumberRaw) ? vehicleFourNumberRaw[0] : vehicleFourNumberRaw
       const vehicleIdRaw = route.query.vehicleId
       const vehicleId = Array.isArray(vehicleIdRaw) ? vehicleIdRaw[0] : vehicleIdRaw
+
+      if (!vehicleFourNumber || String(vehicleFourNumber).length !== 4) {
+        loadError.value = '차량 번호 4자리를 확인해주세요.'
+        loading.value = false
+        return
+      }
       if (!vehicleId) {
         loadError.value = '차량 정보를 찾을 수 없습니다.'
         loading.value = false
         return
       }
+
       try {
-        const res = await getParkedCars(Number(vehicleId))
-        const data = res?.data?.data
-        if (Array.isArray(data) && data.length > 0) {
-          parkedCar.value = data[0]
-        } else if (data && !Array.isArray(data)) {
-          parkedCar.value = data
+        const registerRes = await getRegisterCars(String(vehicleFourNumber))
+        const registerList = registerRes?.data?.data ?? registerRes?.data ?? []
+        const list = Array.isArray(registerList) ? registerList : [registerList]
+        const targetId = Number(vehicleId)
+        const registerCar = list.find((c) => c && Number(c.vehicleId) === targetId)
+
+        if (!registerCar) {
+          loadError.value = '해당 차량 정보를 찾을 수 없습니다.'
+          loading.value = false
+          return
+        }
+
+        const status = String(registerCar.status || '').toUpperCase()
+        registerCarStatus.value = status
+
+        if (status === 'PARKING') {
+          // PARKING: /parking/vehicle로 상세 조회
+          const res = await getParkedCars(targetId)
+          const data = res?.data?.data
+          if (Array.isArray(data) && data.length > 0) {
+            parkedCar.value = data[0]
+          } else if (data && !Array.isArray(data)) {
+            parkedCar.value = data
+          } else {
+            loadError.value = '차량 상세 정보를 불러올 수 없습니다.'
+          }
         } else {
-          loadError.value = '차량 상세 정보를 불러올 수 없습니다.'
+          // WAITING / MOVING: /parking/vehicle로 ParkedCar 조회 (nodeCode 포함)
+          try {
+            const res = await getParkedCars(targetId)
+            const data = res?.data?.data
+            const parkedData = Array.isArray(data) && data.length > 0 ? data[0] : data && !Array.isArray(data) ? data : null
+            parkedCar.value = parkedData
+              ? { ...parkedData, plate: parkedData.plate ?? registerCar.plate }
+              : {
+                  vehicleId: registerCar.vehicleId,
+                  plate: registerCar.plate ?? '',
+                  nodeCode: '',
+                  entryAt: '',
+                  totalMin: 0,
+                  amount: 0,
+                  parkedTime: '',
+                  status: registerCar.status
+                }
+          } catch (vehicleErr) {
+            parkedCar.value = {
+              vehicleId: registerCar.vehicleId,
+              plate: registerCar.plate ?? '',
+              nodeCode: '',
+              entryAt: '',
+              totalMin: 0,
+              amount: 0,
+              parkedTime: '',
+              status: registerCar.status
+            }
+          }
         }
       } catch (e) {
-        loadError.value = '차량 정보 조회에 실패했습니다.'
+        const status = e?.response?.status
+        loadError.value =
+          status === 404
+            ? '해당 차량 정보를 찾을 수 없습니다.'
+            : '차량 정보 조회에 실패했습니다.'
         if (import.meta.env.DEV) console.warn(e)
       } finally {
         loading.value = false
@@ -123,8 +223,19 @@ export default {
       return `${Number(parkedCar.value.amount).toLocaleString()}원`
     })
 
+    // 문구 표시 판단: RegisterCar.status 기준 (PARKING=문구 없음, WAITING/MOVING=문구 표시)
+    const vehicleStatus = computed(() => {
+      const s = registerCarStatus.value
+      if (s === 'MOVING' || s === 'WAITING' || s === 'PARKING') return s
+      return 'PARKING'
+    })
+
     const goBack = () => {
       router.back()
+    }
+
+    const goHome = () => {
+      router.push('/')
     }
 
     const pay = async () => {
@@ -148,7 +259,9 @@ export default {
       loadError,
       formattedEntryAt,
       formattedAmount,
+      vehicleStatus,
       goBack,
+      goHome,
       pay
     }
   }
@@ -163,7 +276,7 @@ export default {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -176,13 +289,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {
@@ -211,12 +327,49 @@ export default {
   justify-content: space-between;
 }
 
+.bottom-section--waiting-moving {
+  padding-top: 125px;
+}
+
+/* exit/list car-card와 동일한 디자인 */
+.vehicle-card {
+  width: min(1104px, 80%);
+  align-self: center;
+  height: 75px;
+  border: 2px solid var(--border-light);
+  background: var(--bg-card);
+  padding: 4px 20px;
+  font-size: 35px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-message {
+  width: 100%;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--color-teal);
+  text-align: center;
+  letter-spacing: 0.18em;
+  padding: 8px 0;
+}
+
 .info-panel {
   width: 100%;
-  border: 1px solid #000;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   box-sizing: border-box;
   overflow: hidden;
   margin-top: 40px;
+  background: var(--bg-card);
 }
 
 .info-loading,
@@ -224,18 +377,18 @@ export default {
   padding: 24px 16px;
   text-align: center;
   font-size: 21px;
-  background: #d9d9d9;
-  color: #000;
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
 
 .info-error {
-  color: #d32f2f;
+  color: var(--color-error);
 }
 
 .info-row {
   display: grid;
   grid-template-columns: 160px 1fr;
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--border-light);
   height: 80px;
 }
 
@@ -244,12 +397,12 @@ export default {
 }
 
 .info-label {
-  background: #8a8a8a;
+  background: var(--color-teal);
   color: #fff;
   font-weight: 700;
-  font-size: 21px; /* 기본(16px) 대비 약 +30% */
+  font-size: 21px;
   padding: 0 16px;
-  border-right: 1px solid #000;
+  border-right: 1px solid var(--border-light);
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -257,8 +410,9 @@ export default {
 }
 
 .info-value {
-  background: #d9d9d9;
-  font-size: 21px; /* 기본(16px) 대비 약 +30% */
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 21px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -273,25 +427,35 @@ export default {
 }
 
 .prev-btn {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #000;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border-light);
   padding: 12px 24px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: var(--shadow-card);
+}
+.prev-btn:hover {
+  border-color: var(--color-teal-light);
 }
 
 .pay-btn {
-  background-color: #2f5fb3;
+  background: var(--gradient-primary);
   color: #fff;
-  border: 1px solid #1e3f79;
+  border: none;
   padding: 12px 28px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+.pay-btn:hover {
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
 }
 
 /* 모바일 (480px 이하) */
@@ -317,6 +481,10 @@ export default {
     padding: 12px;
     gap: 12px;
     justify-content: space-between;
+  }
+
+  .bottom-section--waiting-moving {
+    padding-top: 125px;
   }
 
   .info-row {
@@ -360,6 +528,10 @@ export default {
     padding: 16px;
     gap: 14px;
     justify-content: space-between;
+  }
+
+  .bottom-section--waiting-moving {
+    padding-top: 125px;
   }
 
   .info-row {
@@ -409,6 +581,10 @@ export default {
     padding: 24px;
     gap: 18px;
     justify-content: space-between;
+  }
+
+  .bottom-section--waiting-moving {
+    padding-top: 125px;
   }
 
   .info-row {

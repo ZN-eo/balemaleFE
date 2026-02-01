@@ -33,7 +33,7 @@ export default {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -46,13 +46,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {

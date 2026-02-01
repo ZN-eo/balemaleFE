@@ -86,10 +86,11 @@ export default {
     }
 
     const selectCar = (car) => {
-      // 다음 단계(결제/출차 상세)로 이동 시 vehicleId 전달
+      // vehicleId, vehicleFourNumber + RegisterCar.status(문구 판단용) 전달
       router.push({
         path: '/exit/payment',
-        query: { vehicleId: car.vehicleId }
+        query: { vehicleId: car.vehicleId, vehicleFourNumber },
+        state: { registerCarStatus: car.status }
       })
     }
 
@@ -123,7 +124,7 @@ export default {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -136,13 +137,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {
@@ -177,10 +181,11 @@ export default {
   box-sizing: border-box;
 }
 
-/* 조회중/에러/0건일 때만 큰 흰 패널로 표시 */
 .list-panel.is-empty {
-  background: #fff;
-  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -201,11 +206,11 @@ export default {
   font-size: clamp(22px, 5vw, 40px);
   font-weight: 800;
   letter-spacing: 0.18em;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .empty-text.error {
-  color: #d32f2f;
+  color: var(--color-error);
 }
 
 .card-list {
@@ -215,30 +220,41 @@ export default {
   width: 100%;
 }
 
-/* 카드 = 버튼 (HomeView 버튼처럼 둥근 모서리) */
 .car-card {
   width: min(1104px, 98%);
   height: 75px;
-  border: 1px solid #000;
-  background: #fff;
+  border: 2px solid var(--border-light);
+  background: var(--bg-card);
   padding: 4px 20px;
-  font-size: 45px;
+  font-size: 35px;
   font-weight: 700;
   letter-spacing: 0.3em;
+  color: var(--text-primary);
   cursor: pointer;
   box-sizing: border-box;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.car-card:hover {
+  border-color: var(--color-teal-light);
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
 }
 
 .prev-btn {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #000;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border-light);
   padding: 12px 24px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: var(--shadow-card);
+}
+.prev-btn:hover {
+  border-color: var(--color-teal-light);
 }
 
 /* 모바일 (480px 이하) */
@@ -272,7 +288,7 @@ export default {
 
   .car-card {
     padding: 4px 20px;
-    font-size: 45px;
+    font-size: 35px;
   }
 
   .prev-btn {
@@ -310,7 +326,7 @@ export default {
 
   .car-card {
     padding: 4px 20px;
-    font-size: 45px;
+    font-size: 35px;
   }
 
   .prev-btn {
@@ -354,7 +370,7 @@ export default {
 
   .car-card {
     padding: 4px 20px;
-    font-size: 45px;
+    font-size: 35px;
   }
 
   .prev-btn {

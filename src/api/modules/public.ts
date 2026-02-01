@@ -1,43 +1,25 @@
 import { publicInstance } from '../index'
-import type {
-  ApiResponse,
-  Car,
-  ParkedCar,
-  RegisterCar,
-  AvailableParkingCount,
-  ParkingMapSlot
-} from '../types'
 
-// 차량 목록 조회 api 호출
-export const getCars = () => {
-  return publicInstance.get<ApiResponse<Car[]>>('/cars')
-}
-
-// 차량 등록 api 호출
-export const registerCar = (newCar: Car) => {
-  return publicInstance.post<ApiResponse<Car>>('/cars', newCar)
-}
-
-// 출차할(주차완료된) 차량 상세 조회 api 호출 # url 변경 완료
+// 정산용 출차 차량 조회 (주차완료된 차량만 조회 가능) GET /parking/vehicle?vehicleId=
 export const getParkedCars = (vehicleId: number) => {
-  return publicInstance.get<ApiResponse<ParkedCar[]>>('/parking/vehicle', {
+  return publicInstance.get('/parking/vehicle', {
     params: { vehicleId }
   })
 }
 
-// 조회/출차 버튼 클릭시 등록된된 차량 목록 조회 api 호출 # url 변경 완료
+// 등록완료된 차량 중 뒷 4자리 같은 차량 조회 GET /parking/register-vehicles?vehicleFourNumber=
 export const getRegisterCars = (vehicleFourNumber: string) => {
-  return publicInstance.get<ApiResponse<RegisterCar[]>>('/parking/register-vehicles', {
+  return publicInstance.get('/parking/register-vehicles', {
     params: { vehicleFourNumber }
   })
 }
 
-// 차량 가능 잔여수 조회 api 호출 # url 변경 완료
+// 차량 가능 잔여수 조회 api 호출
 export const getAvailableParkingCount = () => {
-  return publicInstance.get<ApiResponse<AvailableParkingCount>>('/parking/remaining-number')
+  return publicInstance.get('/parking/remaining-number')
 }
 
 // 주차장 맵 데이터 조회 (모든 주차칸 정보, slotId 오름차순)
 export const getParkingMap = () => {
-  return publicInstance.get<ApiResponse<ParkingMapSlot[]>>('/parking/map')
+  return publicInstance.get('/parking/map')
 }

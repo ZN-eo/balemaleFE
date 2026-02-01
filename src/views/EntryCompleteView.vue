@@ -4,7 +4,10 @@
       <div class="robot-status">주차로봇 대기중</div>
     </div>
     <div class="middle-section">
-      <ParkingMap :initial-map-data="parkingMapData" />
+      <ParkingMap
+        :initial-map-data="parkingMapData"
+        :highlighted-slot-code="highlightedSlotCode"
+      />
     </div>
     <div class="bottom-section">
       <div class="complete-panel">
@@ -24,7 +27,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
-import { getCars } from '@/api/modules/public'
+import { getParkedCars } from '@/api/modules/public'
 
 export default {
   name: 'EntryCompleteView',
@@ -35,6 +38,7 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const parkingMapData = history.state?.parkingMapData ?? null
+    const highlightedSlotCode = history.state?.assignedSlotCode ?? null
 
     // 우선순위: query.plate(즉시 표출) → query.vehicleId로 백엔드 조회 후 plate 세팅
     const plateRaw = route.query.plate
@@ -49,10 +53,10 @@ export default {
       if (!Number.isFinite(parsed)) return
 
       try {
-        const res = await getCars()
-        const cars = res?.data?.data ?? []
-        const found = cars.find((c) => c.vehicleId === parsed)
-        if (found?.plate) plate.value = found.plate
+        const res = await getParkedCars(parsed)
+        const data = res?.data?.data
+        const parked = Array.isArray(data) ? data[0] : data
+        if (parked?.plate) plate.value = parked.plate
       } catch (e) {
         if (import.meta.env.DEV) console.warn('차량번호 조회 실패:', e)
       }
@@ -71,7 +75,7 @@ export default {
       router.push('/')
     }
 
-    return { formattedPlate, goHome, parkingMapData }
+    return { formattedPlate, goHome, parkingMapData, highlightedSlotCode }
   }
 }
 </script>
@@ -84,7 +88,7 @@ export default {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -97,13 +101,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {
@@ -135,9 +142,10 @@ export default {
 .complete-panel {
   width: 100%;
   flex: 1;
-  background: #fff;
-  border: 1px solid #000;
-  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   box-sizing: border-box;
   padding: clamp(28px, 6vw, 56px) clamp(16px, 4vw, 32px);
   display: flex;
@@ -149,9 +157,9 @@ export default {
 
 .plate-box {
   width: min(520px, 100%);
-  border: 4px solid #777;
-  border-radius: 8px;
-  background: #fff;
+  border: 2px solid var(--color-teal-light);
+  border-radius: var(--radius-btn);
+  background: var(--bg-card);
   height: 60px;
   padding: 0 18px;
   box-sizing: border-box;
@@ -162,17 +170,17 @@ export default {
   font-weight: 700;
   font-size: clamp(20px, 5vw, 32px);
   letter-spacing: 0.08em;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .complete-title {
-  color: #2f5fb3;
+  color: var(--color-teal);
   font-weight: 800;
   font-size: clamp(22px, 6vw, 40px);
 }
 
 .complete-desc {
-  color: #2f5fb3;
+  color: var(--color-teal-light);
   font-weight: 700;
   font-size: clamp(16px, 4.5vw, 28px);
   letter-spacing: 0.12em;
@@ -186,14 +194,19 @@ export default {
 }
 
 .home-btn {
-  background-color: #2f5fb3;
+  background: var(--gradient-primary);
   color: #fff;
-  border: 1px solid #1e3f79;
+  border: none;
   padding: 12px 28px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+.home-btn:hover {
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
 }
 
 /* 모바일 (480px 이하) */

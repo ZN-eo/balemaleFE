@@ -71,7 +71,6 @@ export default {
 .select-container {
   display: flex;
   flex-direction: column;
-  /* 모바일 주소창 변화까지 고려 */
   min-height: 100vh;
   min-height: 100svh;
   height: 100dvh;
@@ -79,7 +78,7 @@ export default {
   overflow-x: hidden;
   overflow-y: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -92,13 +91,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {
@@ -138,13 +140,13 @@ export default {
 .action-panel {
   width: 100%;
   flex: 1;
-  background: #1B4300;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: clamp(28px, 7vw, 60px) clamp(16px, 4vw, 32px);
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: var(--radius-card);
 }
 
 .button-container {
@@ -158,9 +160,9 @@ export default {
 .action-btn {
   width: clamp(140px, 26vw, 190px);
   aspect-ratio: 1;
-  border: 1px solid #000;
-  background-color: #fff;
-  color: #000;
+  border: none;
+  background: var(--gradient-primary);
+  color: #fff;
   font-size: clamp(20px, 5vw, 30px);
   font-weight: bold;
   cursor: pointer;
@@ -170,18 +172,28 @@ export default {
   justify-content: center;
   text-align: center;
   white-space: pre-line;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  transition: box-shadow 0.2s;
+}
+.action-btn:hover {
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
 }
 
 .prev-btn {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #000;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border-light);
   padding: 12px 24px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: var(--shadow-card);
+}
+.prev-btn:hover {
+  border-color: var(--color-teal-light);
 }
 
 /* 모바일 (480px 이하) */

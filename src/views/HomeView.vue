@@ -109,7 +109,7 @@ export default {
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -122,13 +122,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {
@@ -183,12 +186,18 @@ export default {
 .input-field {
   width: clamp(73px, 21vw, 94px);
   height: clamp(73px, 21vw, 94px);
-  border: 1px solid #000;
-  background: #fff;
+  border: 2px solid var(--border-light);
+  background: var(--bg-card);
   text-align: center;
   font-size: clamp(28px, 8vw, 36px);
+  color: var(--text-primary);
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
+  box-shadow: var(--shadow-card);
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-teal-light);
 }
 
 .keypad {
@@ -208,18 +217,33 @@ export default {
 .keypad-btn {
   width: clamp(81px, 23vw, 101px);
   height: clamp(81px, 23vw, 101px);
-  border: 1px solid #000;
-  background: #fff;
+  border: 2px solid var(--border-light);
+  background: var(--bg-card);
   font-size: clamp(23px, 6.5vw, 29px);
+  font-weight: 600;
   cursor: pointer;
   box-sizing: border-box;
-  border-radius: 8px;
-  color: #000;
+  border-radius: var(--radius-btn);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.keypad-btn:hover {
+  border-color: var(--color-teal-light);
+}
+.keypad-btn:last-child {
+  background: var(--gradient-primary);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+.keypad-btn:last-child:hover {
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
 }
 
 .keypad-btn.delete-btn {
-  background: #fff;
-  color: #000;
+  background: var(--bg-card);
+  color: var(--text-muted);
 }
 
 /* 모바일 (480px 이하) */

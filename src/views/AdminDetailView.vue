@@ -123,7 +123,7 @@ export default {
 .admin-detail-container {
   min-height: 100vh;
   width: 100%;
-  background-color: #1B4300;
+  background: var(--bg-page);
   padding: 20px;
   padding-top: 80px;
   padding-left: 70px;
@@ -160,11 +160,15 @@ export default {
   min-width: 100px;
   padding: 8px 10px;
   font-size: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-btn);
+  background: var(--bg-card);
+  color: var(--text-primary);
   cursor: pointer;
+}
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-teal-light);
 }
 
 .filter-select option {
@@ -174,7 +178,7 @@ export default {
 .loading,
 .empty {
   text-align: center;
-  color: #fff;
+  color: var(--text-muted);
   padding: 40px 20px;
   max-width: 800px;
   margin: 0 auto;
@@ -183,7 +187,7 @@ export default {
 .back-btn {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--color-primary);
   font-size: 24px;
   cursor: pointer;
   width: 40px;
@@ -199,22 +203,22 @@ export default {
 }
 
 .close-btn {
-  background: #ffffff;
-  border: 1px solid #000;
-  color: #000000;
+  background: var(--bg-card);
+  border: 2px solid var(--border-light);
+  color: var(--text-primary);
   font-size: 18px;
   cursor: pointer;
   width: 40px;
   height: 40px;
-  border-radius: 4px;
+  border-radius: var(--radius-btn);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: border-color 0.2s;
 }
 
 .close-btn:hover {
-  background-color: #f0f0f0;
+  border-color: var(--color-teal-light);
 }
 
 .card-list {
@@ -227,18 +231,18 @@ export default {
 }
 
 .card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   padding: 24px;
   box-sizing: border-box;
   width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.12);
   transform: translateY(-2px);
 }
 
@@ -261,12 +265,13 @@ export default {
   font-weight: 600;
   margin-right: 8px;
   min-width: 60px;
-  color: #333;
+  color: var(--color-teal);
+  font-weight: 600;
 }
 
 .value {
   flex: 1;
-  color: #666;
+  color: var(--text-primary);
 }
 
 /* 모바일 (480px 이하) */

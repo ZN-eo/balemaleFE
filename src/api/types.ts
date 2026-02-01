@@ -1,19 +1,8 @@
-// 공용 응답 구조
-export interface ApiResponse<T> {
-  data: T
-  message: string
-  status: number
-}
-
-export interface Car {
-  vehicleId: number
-  plate: string
-}
-
 // 출차할(주차완료된) 차량 상세 조회 응답 구조
 export interface ParkedCar {
   vehicleId: number
   plate: string
+  status: string
   entryAt: string
   nodeCode: string
   totalMin: number
@@ -77,3 +66,4 @@ export interface ParkingMapSlot {
   slotType: string // NORMAL | DISABLED
   slotStatus: string // EMPTY | OCCUPIED
 }
+

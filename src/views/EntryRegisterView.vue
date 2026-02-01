@@ -27,7 +27,7 @@
 import ParkingMap from '@/components/ParkingMap.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getCars, getParkingMap } from '@/api/modules/public'
+import { getParkedCars, getParkingMap } from '@/api/modules/public'
 
 export default {
   name: 'EntryRegisterView',
@@ -50,10 +50,10 @@ export default {
       if (!Number.isFinite(parsed)) return
 
       try {
-        const res = await getCars()
-        const cars = res?.data?.data ?? []
-        const found = cars.find((c) => c.vehicleId === parsed)
-        if (found?.plate) plate.value = found.plate
+        const res = await getParkedCars(parsed)
+        const data = res?.data?.data
+        const parked = Array.isArray(data) ? data[0] : data
+        if (parked?.plate) plate.value = parked.plate
       } catch (e) {
         if (import.meta.env.DEV) console.warn('차량번호 조회 실패:', e)
       }
@@ -72,13 +72,22 @@ export default {
       router.go(-1)
     }
 
+    const SLOT_CODES_BY_INDEX = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C1', 'C2', 'C3', 'C4']
+
     const enter = async () => {
       const parsed = Number(vehicleIdValue)
       let parkingMapData = null
+      let assignedSlotCode = null
       try {
         const res = await getParkingMap()
         const list = res?.data?.data ?? res?.data ?? []
-        if (Array.isArray(list) && list.length >= 12) parkingMapData = list
+        if (Array.isArray(list) && list.length >= 12) {
+          parkingMapData = list
+          const firstEmpty = list.findIndex((s) => s.slotStatus !== 'OCCUPIED')
+          if (firstEmpty !== -1 && firstEmpty < SLOT_CODES_BY_INDEX.length) {
+            assignedSlotCode = SLOT_CODES_BY_INDEX[firstEmpty]
+          }
+        }
       } catch (e) {
         if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
       }
@@ -88,7 +97,11 @@ export default {
           ...(Number.isFinite(parsed) ? { vehicleId: String(parsed) } : {}),
           ...(plate.value ? { plate: plate.value } : {})
         },
-        state: parkingMapData ? { parkingMapData } : {}
+        state: parkingMapData
+          ? { parkingMapData, assignedSlotCode }
+          : assignedSlotCode
+            ? { assignedSlotCode }
+            : {}
       })
     }
 
@@ -109,7 +122,7 @@ export default {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #1B4300;
+  background: var(--bg-page);
 }
 
 .top-section {
@@ -122,13 +135,16 @@ export default {
 }
 
 .robot-status {
-  border: 1px solid #000;
-  background: #fff;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   padding: 20px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-teal);
+  font-weight: 700;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .middle-section {
@@ -169,9 +185,10 @@ export default {
 .complete-panel {
   width: 100%;
   max-width: 760px;
-  background: #fff;
-  border: 1px solid #000;
-  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   box-sizing: border-box;
   padding: clamp(28px, 6vw, 56px) clamp(16px, 4vw, 32px);
   display: flex;
@@ -183,9 +200,9 @@ export default {
 
 .plate-box {
   width: min(520px, 100%);
-  border: 4px solid #777;
-  border-radius: 8px;
-  background: #fff;
+  border: 2px solid var(--color-teal-light);
+  border-radius: var(--radius-btn);
+  background: var(--bg-card);
   height: 60px;
   padding: 0 18px;
   box-sizing: border-box;
@@ -196,11 +213,11 @@ export default {
   font-weight: 700;
   font-size: clamp(20px, 5vw, 32px);
   letter-spacing: 0.08em;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .entry-title {
-  color: #000;
+  color: var(--color-teal);
   font-weight: 800;
   font-size: clamp(22px, 6vw, 40px);
   letter-spacing: 0.18em;
@@ -208,7 +225,7 @@ export default {
 }
 
 .entry-warning {
-  color: #d32f2f;
+  color: var(--color-error);
   font-weight: 800;
   font-size: clamp(18px, 5vw, 34px);
   letter-spacing: 0.12em;
@@ -223,25 +240,35 @@ export default {
 }
 
 .prev-btn {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #000;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border-light);
   padding: 12px 24px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: var(--shadow-card);
+}
+.prev-btn:hover {
+  border-color: var(--color-teal-light);
 }
 
 .enter-btn {
-  background-color: #2f5fb3;
+  background: var(--gradient-primary);
   color: #fff;
-  border: 1px solid #1e3f79;
+  border: none;
   padding: 12px 24px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+.enter-btn:hover {
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
 }
 
 /* 모바일 (480px 이하) */

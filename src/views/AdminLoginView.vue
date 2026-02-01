@@ -72,7 +72,7 @@ export default {
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  background-color: #1B4300;
+  background: var(--bg-page);
   padding: 20px;
   padding-top: 80px;
   padding-left: 70px;
@@ -90,7 +90,7 @@ export default {
 .back-btn {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--color-primary);
   font-size: 24px;
   cursor: pointer;
   width: 40px;
@@ -106,22 +106,22 @@ export default {
 }
 
 .login-card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   padding: 40px;
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
   box-sizing: border-box;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .login-card h2 {
   text-align: center;
   margin-bottom: 30px;
-  color: #333;
-  font-weight: 600;
+  color: var(--color-teal);
+  font-weight: 700;
 }
 
 .login-form {
@@ -132,38 +132,39 @@ export default {
 
 .login-form input {
   padding: 15px;
-  border: 1px solid #ccc;
+  border: 2px solid var(--border-light);
   font-size: 16px;
   box-sizing: border-box;
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
   touch-action: manipulation;
-  border-radius: 4px;
-  background: #fff;
-  color: #333;
+  border-radius: var(--radius-btn);
+  background: var(--bg-card);
+  color: var(--text-primary);
   transition: border-color 0.2s;
 }
 
 .login-form input:focus {
   outline: none;
-  border-color: #1B4300;
+  border-color: var(--color-teal-light);
 }
 
 .login-btn {
   padding: 15px;
   border: none;
-  background: #1B4300;
-  color: #ffffff;
+  background: var(--gradient-primary);
+  color: #fff;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.2s, transform 0.1s;
+  border-radius: var(--radius-btn);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+  transition: box-shadow 0.2s, transform 0.1s;
 }
 
 .login-btn:hover {
-  background-color: #2D5A27;
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
   transform: translateY(-1px);
 }
 
