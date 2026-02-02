@@ -117,14 +117,12 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { getAvailableParkingCount, getParkingMap } from '@/api/modules/public'
 import { defineComponent } from 'vue'
-import { useMapStore } from '@/stores/map'
-// import { parkingData } from '@/api/socket'
+import { useWsStore } from '@/stores/wsStore'
 import blackCar from '@/assets/icons/black-car.png'
 import blueCar from '@/assets/icons/blue-car.png'
 import orangeCar from '@/assets/icons/orange-car.png'
 import redCar from '@/assets/icons/red-car.png'
-import { subscribeMapStatus, unsubscribeMapStatus } from '@/api/websocket/mapApi'
-
+import { subscribeRobotEvent, unsubscribeRobotEvent } from '@/api/websocket/wsApi'
 // 위치 코드: 상단 2행4열 = C1~C4, B1~B4 / 하단 1행4열 = A1~A4
 const TOP_SLOT_CODES = ['C1', 'C2', 'C3', 'C4', 'B1', 'B2', 'B3', 'B4']
 const BOTTOM_SLOT_CODES = ['A1', 'A2', 'A3', 'A4']
@@ -201,6 +199,7 @@ export default defineComponent({
       totalCount: 0
     })
 
+    // 참고하고 나중에 삭제할 것
     watch(
       () => mapStore.currentStatus,
       (newData) => {

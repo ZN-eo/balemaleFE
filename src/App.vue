@@ -13,7 +13,6 @@ export default defineComponent({
     this.initSocket()
   },
   beforeUnmount() {
-    // 앱 종료 시 소켓 연결 해제 (메모리 누수 방지)
     disconnect()
   },
   methods: {
