@@ -18,7 +18,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "@stomp/stompjs": "^7.2.1",
+    "@stomp/stompjs": "^7.3.0",
     "axios": "^1.13.2",
     "pinia": "^3.0.4",
     "sockjs-client": "^1.6.1",

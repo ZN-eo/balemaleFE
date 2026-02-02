@@ -1,22 +1,35 @@
 <script>
-import { connectSocket } from './api/socket'
+import { defineComponent } from 'vue'
+import { connect, disconnect } from './api/websocket/stompClient'
 
-export default {
+export default defineComponent({
   name: 'App',
-  mounted() {
-    connectSocket()
-  },
   computed: {
     isAdminRoute() {
       return this.$route.path.startsWith('/admin')
     }
   },
+  mounted() {
+    this.initSocket()
+  },
+  beforeUnmount() {
+    // 앱 종료 시 소켓 연결 해제 (메모리 누수 방지)
+    disconnect()
+  },
   methods: {
+    async initSocket() {
+      try {
+        await connect()
+        console.log('STOMP 연결 성공')
+      } catch (error) {
+        console.error('STOMP 연결 실패:', error)
+      }
+    },
     goToAdmin() {
       this.$router.push('/admin/login')
     }
   }
-}
+})
 </script>
 
 <template>
