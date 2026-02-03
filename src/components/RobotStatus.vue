@@ -5,9 +5,6 @@
       <span :class="['robot-status-value', eventTypeClass(wsStore.lastRobotEvent.robotEventType)]">
         {{ robotEventLabel(wsStore.lastRobotEvent.robotEventType) }}
       </span>
-      <span v-if="wsStore.lastRobotEvent.plate" class="robot-plate">
-        {{ wsStore.lastRobotEvent.plate }}
-      </span>
     </template>
     <span v-else class="robot-status-value robot-status-waiting">주차로봇 대기중</span>
   </div>
@@ -43,7 +40,9 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      console.log('subscribeRobotEvent')
       subscribeRobotEvent((data) => {
+        console.log('robot-event', data)
         wsStore.setRobotEvent(data)
       })
     })

@@ -22,12 +22,14 @@ export type RobotEventData = {
   robotEventType: RobotEventType
 }
 
-export const subscribePaymentStatus = (handler: (e: PaymentData) => void) =>
-  subscribe('payment-status', '/topic/payment', handler)
+export const subscribePaymentStatus = (handler: (e: PaymentData) => void) => {
+  subscribe('payment-status', '/balemale/queue/kiosk/payment', handler)
+  console.log('subscribePaymentStatus')
+}
 
 export const unsubscribePaymentStatus = () => unsubscribe('payment-status')
 
 export const subscribeRobotEvent = (handler: (e: RobotEventData) => void) =>
-  subscribe('robot-event', '/topic/robot-events', handler)
+  subscribe('robot-event', '/balemale/queue/kiosk/robot', handler)
 
 export const unsubscribeRobotEvent = () => unsubscribe('robot-event')
