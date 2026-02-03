@@ -21,9 +21,14 @@
                   class="car-icon-img"
                   alt="주차된 차량"
                 />
-                <span v-else class="available-text">{{ isSlotHighlighted('top', idx) ? 'Selected' : '주차 가능' }}</span>
+                <span v-else class="available-text">{{
+                  isSlotHighlighted('top', idx) ? 'Selected' : '주차 가능'
+                }}</span>
               </div>
-              <span class="slot-code" :class="{ occupied: spot.occupied, selected: isSlotHighlighted('top', idx) }">
+              <span
+                class="slot-code"
+                :class="{ occupied: spot.occupied, selected: isSlotHighlighted('top', idx) }"
+              >
                 {{ TOP_SLOT_CODES[idx] }}
               </span>
             </div>
@@ -41,9 +46,17 @@
           >
             <div
               class="parking-spot"
-              :class="{ occupied: spot.occupied, selected: isSlotHighlighted('bottom', idx), disabled: spot.isDisabled }"
+              :class="{
+                occupied: spot.occupied,
+                selected: isSlotHighlighted('bottom', idx),
+                disabled: spot.isDisabled
+              }"
             >
-              <span v-if="isSlotHighlighted('bottom', idx)" class="selected-blob" aria-hidden="true" />
+              <span
+                v-if="isSlotHighlighted('bottom', idx)"
+                class="selected-blob"
+                aria-hidden="true"
+              />
               <div class="spot-center">
                 <svg
                   v-if="spot.isDisabled"
@@ -53,7 +66,10 @@
                   role="img"
                   aria-label="장애인"
                 >
-                  <path d="M480-720q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720ZM680-80v-200H480q-33 0-56.5-23.5T400-360v-240q0-33 23.5-56.5T480-680q24 0 41.5 10.5T559-636q55 66 99.5 90.5T760-520v80q-53 0-107-23t-93-55v138h120q33 0 56.5 23.5T760-300v220h-80Zm-280 0q-83 0-141.5-58.5T200-280q0-72 45.5-127T360-476v82q-35 14-57.5 44.5T280-280q0 50 35 85t85 35q39 0 69.5-22.5T514-240h82q-14 69-69 114.5T400-80Z" fill="currentColor"/>
+                  <path
+                    d="M480-720q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720ZM680-80v-200H480q-33 0-56.5-23.5T400-360v-240q0-33 23.5-56.5T480-680q24 0 41.5 10.5T559-636q55 66 99.5 90.5T760-520v80q-53 0-107-23t-93-55v138h120q33 0 56.5 23.5T760-300v220h-80Zm-280 0q-83 0-141.5-58.5T200-280q0-72 45.5-127T360-476v82q-35 14-57.5 44.5T280-280q0 50 35 85t85 35q39 0 69.5-22.5T514-240h82q-14 69-69 114.5T400-80Z"
+                    fill="currentColor"
+                  />
                 </svg>
                 <img
                   v-if="spot.occupied"
@@ -61,9 +77,18 @@
                   class="car-icon-img"
                   alt="주차된 차량"
                 />
-                <span v-else class="available-text">{{ isSlotHighlighted('bottom', idx) ? 'Selected' : '주차 가능' }}</span>
+                <span v-else class="available-text">{{
+                  isSlotHighlighted('bottom', idx) ? 'Selected' : '주차 가능'
+                }}</span>
               </div>
-              <span class="slot-code" :class="{ occupied: spot.occupied, selected: isSlotHighlighted('bottom', idx), disabled: spot.isDisabled }">
+              <span
+                class="slot-code"
+                :class="{
+                  occupied: spot.occupied,
+                  selected: isSlotHighlighted('bottom', idx),
+                  disabled: spot.isDisabled
+                }"
+              >
                 {{ BOTTOM_SLOT_CODES[idx] }}
               </span>
             </div>
@@ -89,13 +114,15 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { getAvailableParkingCount, getParkingMap } from '@/api/modules/public'
+import { defineComponent } from 'vue'
+import { useWsStore } from '@/stores/wsStore'
 import blackCar from '@/assets/icons/black-car.png'
 import blueCar from '@/assets/icons/blue-car.png'
 import orangeCar from '@/assets/icons/orange-car.png'
 import redCar from '@/assets/icons/red-car.png'
-
+import { subscribeRobotEvent, unsubscribeRobotEvent } from '@/api/websocket/wsApi'
 // 위치 코드: 상단 2행4열 = C1~C4, B1~B4 / 하단 1행4열 = A1~A4
 const TOP_SLOT_CODES = ['C1', 'C2', 'C3', 'C4', 'B1', 'B2', 'B3', 'B4']
 const BOTTOM_SLOT_CODES = ['A1', 'A2', 'A3', 'A4']
@@ -121,7 +148,10 @@ function toSpot(slot) {
 function applyMapList(list, topGridSpots, bottomGridSpots) {
   if (!Array.isArray(list) || list.length < 12) {
     topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
-    bottomGridSpots.value = Array.from({ length: 4 }, (_, i) => ({ occupied: false, isDisabled: i < 2 }))
+    bottomGridSpots.value = Array.from({ length: 4 }, (_, i) => ({
+      occupied: false,
+      isDisabled: i < 2
+    }))
     return
   }
   bottomGridSpots.value = list.slice(0, 4).map(toSpot)
@@ -130,7 +160,7 @@ function applyMapList(list, topGridSpots, bottomGridSpots) {
   topGridSpots.value = [...cRow, ...bRow]
 }
 
-export default {
+export default defineComponent({
   name: 'ParkingMap',
   props: {
     /** 입차/정산 완료 후 넘긴 최신 맵 데이터 있으면 사용, 없으면 mount 시 API 호출 */
@@ -156,6 +186,8 @@ export default {
       const slotCode = zone === 'top' ? TOP_SLOT_CODES[idx] : BOTTOM_SLOT_CODES[idx]
       return slotCode === code
     }
+
+    const mapStore = useMapStore()
     // 상단 그리드: 2행 4열 = C1~C4(1행), B1~B4(2행)
     const topGridSpots = ref([])
     // 하단 그리드: 1행 4열 = A1~A4
@@ -169,6 +201,21 @@ export default {
     /** 잔여 수 API 조회 완료 여부 (로딩 중에는 만차로 보이지 않도록) */
     const parkingCountLoaded = ref(false)
 
+    // 참고하고 나중에 삭제할 것
+    watch(
+      () => mapStore.currentStatus,
+      (newData) => {
+        if (newData) {
+          console.log('WebSocket 데이터 스토어 반영:', newData)
+
+          const list = Array.isArray(newData) ? newData : newData.data || []
+
+          applyMapList(list, topGridSpots, bottomGridSpots)
+        }
+      },
+      { deep: true, immediate: true }
+    )
+
     const fetchParkingMap = async () => {
       try {
         const res = await getParkingMap()
@@ -178,8 +225,14 @@ export default {
         if (import.meta.env.DEV) {
           console.warn('주차장 맵 조회 실패:', error?.message || error)
         }
-        topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
-        bottomGridSpots.value = Array.from({ length: 4 }, (_, idx) => ({ occupied: false, isDisabled: idx < 2 }))
+        topGridSpots.value = Array.from({ length: 8 }, () => ({
+          occupied: false,
+          isDisabled: false
+        }))
+        bottomGridSpots.value = Array.from({ length: 4 }, (_, idx) => ({
+          occupied: false,
+          isDisabled: idx < 2
+        }))
       }
     }
 
@@ -206,6 +259,17 @@ export default {
         fetchParkingMap()
       }
       fetchParkingCount()
+
+      console.log('구독 시작')
+      subscribeMapStatus((data) => {
+        console.log('데이터 수신:', data)
+        mapStore.setStatus(data)
+      })
+    })
+
+    onUnmounted(() => {
+      unsubscribeMapStatus()
+      console.log('구독 해제')
     })
 
     return {
@@ -216,10 +280,11 @@ export default {
       parkingCount,
       parkingCountLoaded,
       getCarIconSrc,
-      isSlotHighlighted
+      isSlotHighlighted,
+      mapStore
     }
   }
-}
+})
 </script>
 
 <style scoped>

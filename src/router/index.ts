@@ -9,6 +9,8 @@ import EntryCompleteView from '@/views/EntryCompleteView.vue'
 import ExitListView from '@/views/ExitListView.vue'
 import ExitPaymentView from '@/views/ExitPaymentView.vue'
 import ExitCompleteView from '@/views/ExitCompleteView.vue'
+// test dummy vue
+import DummyView from '@/views/DummyView.vue'
 
 const routes = [
   {
@@ -56,6 +58,11 @@ const routes = [
     path: '/exit/complete',
     name: 'ExitCompleteView',
     component: ExitCompleteView
+  },
+  {
+    path: '/dummy',
+    name: 'DummyView',
+    component: DummyView
   }
 ]
 const router = createRouter({

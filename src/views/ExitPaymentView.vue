@@ -7,25 +7,31 @@
 
     <!-- 중간 섹션 -->
     <div class="middle-section">
-      <ParkingMap
-        :highlighted-slot-code="parkedCar?.nodeCode ?? null"
-        highlight-variant="teal"
-      />
+      <ParkingMap :highlighted-slot-code="parkedCar?.nodeCode ?? null" highlight-variant="teal" />
     </div>
 
-    <!-- 하단 섹션: action-bar는 항상 하단 고정 (margin-top: auto) -->
-    <div class="bottom-section">
+    <!-- 하단 섹션 -->
+    <div
+      class="bottom-section"
+      :class="{
+        'bottom-section--waiting-moving': vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING'
+      }"
+    >
       <!-- WAITING / MOVING 일 때만 차량번호 카드 + 상태 문구 표시 (PARKING이면 정산표만) -->
-      <template v-if="!loading && !loadError && parkedCar && (vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING')">
-        <div class="bottom-section__waiting-moving-content">
-          <div class="vehicle-card">{{ parkedCar.plate }}</div>
-          <div class="status-message">
+      <template
+        v-if="
+          !loading &&
+          !loadError &&
+          parkedCar &&
+          (vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING')
+        "
+      >
+        <div class="vehicle-card">{{ parkedCar.plate }}</div>
+        <div class="status-message">
           <template v-if="vehicleStatus === 'MOVING'">
             <span class="status-message__node">{{ parkedCar.nodeCode }}</span><span> 위치에 주차중 입니다</span>
           </template>
-          <template v-else>
-            <span class="status-message__node">{{ parkedCar.nodeCode }}</span><span> 위치에 주차 예정입니다</span>
-          </template>
+          <template v-else> {{ parkedCar.nodeCode }} 위치에 주차 예정입니다 </template>
         </div>
         </div>
       </template>
@@ -60,22 +66,10 @@
 
       <div class="action-bar">
         <button type="button" class="prev-btn" @click="goBack">이전</button>
-        <button
-          v-if="vehicleStatus === 'PARKING'"
-          type="button"
-          class="pay-btn"
-          @click="pay"
-        >
+        <button v-if="vehicleStatus === 'PARKING'" type="button" class="pay-btn" @click="pay">
           정산하기
         </button>
-        <button
-          v-else
-          type="button"
-          class="pay-btn"
-          @click="goHome"
-        >
-          처음으로
-        </button>
+        <button v-else type="button" class="pay-btn" @click="goHome">처음으로</button>
       </div>
     </div>
 
@@ -208,8 +202,9 @@ export default {
 
       // 2) register-vehicles로 먼저 조회 후 status별 분기
       const vehicleFourNumberRaw = route.query.vehicleFourNumber
-      const vehicleFourNumber =
-        Array.isArray(vehicleFourNumberRaw) ? vehicleFourNumberRaw[0] : vehicleFourNumberRaw
+      const vehicleFourNumber = Array.isArray(vehicleFourNumberRaw)
+        ? vehicleFourNumberRaw[0]
+        : vehicleFourNumberRaw
       const vehicleIdRaw = route.query.vehicleId
       const vehicleId = Array.isArray(vehicleIdRaw) ? vehicleIdRaw[0] : vehicleIdRaw
 
@@ -256,7 +251,12 @@ export default {
           try {
             const res = await getParkedCars(targetId)
             const data = res?.data?.data
-            const parkedData = Array.isArray(data) && data.length > 0 ? data[0] : data && !Array.isArray(data) ? data : null
+            const parkedData =
+              Array.isArray(data) && data.length > 0
+                ? data[0]
+                : data && !Array.isArray(data)
+                  ? data
+                  : null
             parkedCar.value = parkedData
               ? { ...parkedData, plate: parkedData.plate ?? registerCar.plate }
               : {
@@ -285,9 +285,7 @@ export default {
       } catch (e) {
         const status = e?.response?.status
         loadError.value =
-          status === 404
-            ? '해당 차량 정보를 찾을 수 없습니다.'
-            : '차량 정보 조회에 실패했습니다.'
+          status === 404 ? '해당 차량 정보를 찾을 수 없습니다.' : '차량 정보 조회에 실패했습니다.'
         if (import.meta.env.DEV) console.warn(e)
       } finally {
         loading.value = false

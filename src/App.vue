@@ -1,5 +1,8 @@
 <script>
-export default {
+import { defineComponent } from 'vue'
+import { connect, disconnect } from './api/websocket/stompClient'
+
+export default defineComponent({
   name: 'App',
   computed: {
     isAdminRoute() {
@@ -7,12 +10,24 @@ export default {
     }
   },
   watch: {
-    $route: 'updateAppBackground'
-  },
+      $route: 'updateAppBackground'
+    },
   mounted() {
-    this.updateAppBackground()
+      this.initSocket(),
+      this.updateAppBackground()
+    },
+  beforeUnmount() {
+    disconnect()
   },
   methods: {
+    async initSocket() {
+      try {
+        await connect()
+        console.log('STOMP 연결 성공')
+      } catch (error) {
+        console.error('STOMP 연결 실패:', error)
+      }
+    },
     goToAdmin() {
       this.$router.push('/admin/login')
     },
@@ -26,7 +41,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <template>
