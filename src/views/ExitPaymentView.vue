@@ -1,10 +1,5 @@
 <template>
   <div class="exit-payment-container">
-    <!-- 상단 섹션 -->
-    <div class="top-section">
-      <div class="robot-status">주차로봇 대기중</div>
-    </div>
-
     <!-- 중간 섹션 -->
     <div class="middle-section">
       <ParkingMap :highlighted-slot-code="parkedCar?.nodeCode ?? null" highlight-variant="teal" />

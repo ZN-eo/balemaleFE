@@ -1,10 +1,5 @@
 <template>
   <div class="entry-list-container">
-    <!-- 상단 섹션 -->
-    <div class="top-section">
-      <div class="robot-status">주차로봇 대기중</div>
-    </div>
-
     <!-- 중간 섹션 (주차장 맵) -->
     <div class="middle-section">
       <ParkingMap />
@@ -19,13 +14,15 @@
 
         <div v-else class="card-list">
           <button
-            v-for="car in cars"
-            :key="car.vehicleId"
+            v-for="(car, idx) in cars"
+            :key="`${car.plate}-${idx}`"
             type="button"
             class="car-card"
+            :class="{ 'is-disabled-car': car.isDisabled }"
             @click="selectCar(car)"
           >
-            {{ car.plate }}
+            <span class="car-plate">{{ car.plate }}</span>
+            <span v-if="car.isDisabled" class="disabled-badge">장애인</span>
           </button>
         </div>
       </div>
@@ -36,9 +33,10 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
+import { getOcrDetections } from '@/api/modules/parking'
 
 export default {
   name: 'EntryListView',
@@ -53,13 +51,43 @@ export default {
     const vehicleFourNumber =
       Array.isArray(vehicleFourNumberRaw) ? vehicleFourNumberRaw[0] : vehicleFourNumberRaw
 
-    // TODO: 백엔드 등록대기차량 API 연동 후 조회
     const cars = ref([])
+
+    /** 번호판 문자열에서 숫자만 추출한 뒤 마지막 4자리 반환 (뒷번호 4자리) */
+    const lastFourDigits = (plate) => {
+      const digits = (plate ?? '').toString().replace(/\D/g, '')
+      return digits.length >= 4 ? digits.slice(-4) : ''
+    }
+
+    const fetchOcrList = async () => {
+      const four = vehicleFourNumber != null ? String(vehicleFourNumber).trim() : ''
+      if (four.length !== 4) {
+        cars.value = []
+        return
+      }
+      try {
+        const res = await getOcrDetections()
+        const list = res?.data?.data ?? res?.data ?? []
+        const items = Array.isArray(list) ? list : []
+        cars.value = items.filter(
+          (item) => item?.plate && lastFourDigits(item.plate) === four
+        )
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn('OCR 목록 조회 실패:', e)
+        cars.value = []
+      }
+    }
 
     const selectCar = (car) => {
       router.push({
         path: '/entry/register',
-        query: { vehicleId: car.vehicleId }
+        query: { plate: car.plate },
+        state: {
+          ocrDetection: {
+            plate: (car.plate ?? '').toString().trim(),
+            isDisabled: car.isDisabled ?? false
+          }
+        }
       })
     }
 
@@ -69,6 +97,10 @@ export default {
         query: vehicleFourNumber ? { vehicleFourNumber } : {}
       })
     }
+
+    onMounted(() => {
+      fetchOcrList()
+    })
 
     return {
       cars,
@@ -202,6 +234,25 @@ export default {
 .car-card:hover {
   border-color: var(--color-teal-light);
   box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+}
+.car-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.car-plate {
+  flex: 1;
+  text-align: left;
+}
+.car-card.is-disabled-car .disabled-badge {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-teal);
+  background: rgba(20, 184, 166, 0.15);
+  padding: 4px 10px;
+  border-radius: var(--radius-btn);
 }
 
 .prev-btn {

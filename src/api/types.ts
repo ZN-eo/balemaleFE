@@ -81,3 +81,20 @@ export interface ParkingMapSlot {
   slotStatus: SlotStatus
 }
 
+// OCR로 인식된 번호판 한 건 (AI→백엔드 저장·목록 조회·입차등록 body 공통)
+export interface OcrDetection {
+  /** 차량 번호판 (앞뒤·중간 공백은 저장 시 trim 처리) e.g. "12가 3456" */
+  plate: string
+  /** 입차 시각 (OCR 인식 시점) ISO date-time e.g. "2025-02-02T10:30:00" */
+  entryAt: string
+  /** 장애인 차량 여부 (true: 장애인 구역 배정) */
+  isDisabled: boolean
+}
+
+/** 입차 등록 응답 DTO (POST /parking/vehicle) */
+export interface AddVehicleResult {
+  slotId: number
+  nodeCode: string
+  plate: string
+}
+

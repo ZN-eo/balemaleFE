@@ -1,5 +1,8 @@
 import { publicInstance } from '../index'
 
+// 입차 등록 차량 조회
+
+
 // 정산용 출차 차량 조회 (주차완료된 차량만 조회 가능) GET /parking/vehicle?vehicleId=
 export const getParkedCars = (vehicleId: number) => {
   return publicInstance.get('/parking/vehicle', {
