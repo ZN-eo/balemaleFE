@@ -1,8 +1,5 @@
 <template>
   <div class="entry-complete-container">
-    <div class="top-section">
-      <div class="robot-status">주차로봇 대기중</div>
-    </div>
     <div class="middle-section">
       <ParkingMap
         :initial-map-data="parkingMapData"

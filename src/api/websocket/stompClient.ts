@@ -26,10 +26,11 @@ export const connect = (): Promise<void> => {
    * - reconnectDelay: 연결이 끊기면 5초 후 자동 재연결
    */
   client = new Client({
-    brokerURL: import.meta.env.VITE_SOCKET_URL ?? 'ws://localhost:8080/ws',
+    brokerURL: import.meta.env.VITE_SOCKET_URL,
     reconnectDelay: 5000,
     debug: (str) => console.log(str)
   })
+  console.log(client)
 
   /**
    * STOMP 연결 결과를 Promise로 감싼다
@@ -106,6 +107,7 @@ export const subscribe = async <T>(key: string, destination: string, handler: Ha
   })
 
   subscriptions.set(key, sub)
+  console.log(subscriptions)
   return sub
 }
 

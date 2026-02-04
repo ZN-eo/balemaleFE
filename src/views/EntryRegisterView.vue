@@ -1,8 +1,5 @@
 <template>
   <div class="entry-register-container">
-    <div class="top-section">
-      <div class="robot-status">주차로봇 대기중</div>
-    </div>
     <div class="middle-section">
       <ParkingMap />
     </div>
@@ -20,14 +17,23 @@
         <button type="button" class="enter-btn" @click="enter">입차하기</button>
       </div>
     </div>
+
+    <!-- 만차 모달 (404) -->
+    <div v-if="showFullModal" class="modal-overlay" @click.self="closeFullModal">
+      <div class="modal-box">
+        <p class="modal-message">만차 : 주차가 불가합니다</p>
+        <button type="button" class="modal-confirm-btn" @click="closeFullModal">확인</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import ParkingMap from '@/components/ParkingMap.vue'
+import { registerVehicleWithOcr } from '@/api/modules/parking'
+import { getParkedCars, getParkingMap } from '@/api/modules/public'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getParkedCars, getParkingMap } from '@/api/modules/public'
 
 export default {
   name: 'EntryRegisterView',
@@ -44,6 +50,24 @@ export default {
 
     const vehicleIdRaw = route.query.vehicleId
     const vehicleIdValue = Array.isArray(vehicleIdRaw) ? vehicleIdRaw[0] : vehicleIdRaw
+
+    // EntryListView에서 선택한 OcrDetection (state로 전달) 또는 plate만 있을 때 기본값으로 구성
+    const getOcrDetection = () => {
+      const fromState = history.state?.ocrDetection
+      if (fromState?.plate) {
+        return {
+          plate: fromState.plate.trim(),
+          entryAt: fromState.entryAt ?? new Date().toISOString(),
+          isDisabled: fromState.isDisabled ?? false
+        }
+      }
+      const p = (plate.value ?? '').toString().trim()
+      return {
+        plate: p,
+        entryAt: new Date().toISOString(),
+        isDisabled: false
+      }
+    }
 
     const fetchPlateByVehicleId = async () => {
       const parsed = Number(vehicleIdValue)
@@ -72,43 +96,61 @@ export default {
       router.go(-1)
     }
 
-    const SLOT_CODES_BY_INDEX = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C1', 'C2', 'C3', 'C4']
+    const showFullModal = ref(false)
+
+    const closeFullModal = () => {
+      showFullModal.value = false
+      router.push('/')
+    }
 
     const enter = async () => {
-      const parsed = Number(vehicleIdValue)
-      let parkingMapData = null
-      let assignedSlotCode = null
-      try {
-        const res = await getParkingMap()
-        const list = res?.data?.data ?? res?.data ?? []
-        if (Array.isArray(list) && list.length >= 12) {
-          parkingMapData = list
-          const firstEmpty = list.findIndex((s) => s.slotStatus !== 'OCCUPIED')
-          if (firstEmpty !== -1 && firstEmpty < SLOT_CODES_BY_INDEX.length) {
-            assignedSlotCode = SLOT_CODES_BY_INDEX[firstEmpty]
-          }
-        }
-      } catch (e) {
-        if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
+      const ocrDetection = getOcrDetection()
+      if (!ocrDetection.plate?.trim()) {
+        alert('차량 번호를 확인해주세요.')
+        return
       }
-      router.push({
-        path: '/entry/complete',
-        query: {
-          ...(Number.isFinite(parsed) ? { vehicleId: String(parsed) } : {}),
-          ...(plate.value ? { plate: plate.value } : {})
-        },
-        state: parkingMapData
-          ? { parkingMapData, assignedSlotCode }
-          : assignedSlotCode
-            ? { assignedSlotCode }
-            : {}
-      })
+      try {
+        const res = await registerVehicleWithOcr(ocrDetection)
+        if (import.meta.env.DEV) console.log('입차 등록 응답 코드:', res.status)
+        const result = res?.data?.data ?? res?.data
+        const resultPlate = result?.plate ?? plate.value
+        const resultNodeCode = result?.nodeCode ?? null
+
+        let parkingMapData = null
+        try {
+          const mapRes = await getParkingMap()
+          const list = mapRes?.data?.data ?? mapRes?.data ?? []
+          if (Array.isArray(list) && list.length >= 12) parkingMapData = list
+        } catch (e) {
+          if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
+        }
+
+        router.push({
+          path: '/entry/complete',
+          query: { ...(resultPlate ? { plate: resultPlate } : {}) },
+          state: {
+            parkingMapData,
+            assignedSlotCode: resultNodeCode
+          }
+        })
+      } catch (e) {
+        const status = e?.response?.status
+        if (import.meta.env.DEV) console.log('입차 등록 응답 코드:', status)
+        if (status === 404) {
+          showFullModal.value = true
+          return
+        }
+        if (import.meta.env.DEV) console.warn('입차 등록 실패:', e)
+        alert('입차 등록에 실패했습니다. 다시 시도해주세요.')
+      }
     }
 
     return {
       formattedPlate,
       goBack,
-      enter
+      enter,
+      showFullModal,
+      closeFullModal
     }
   }
 }
@@ -268,6 +310,51 @@ export default {
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
 }
 .enter-btn:hover {
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
+}
+
+/* 만차 모달 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-box {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 28px 32px 24px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.modal-message {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+}
+.modal-confirm-btn {
+  align-self: center;
+  margin-top: 4px;
+  padding: 10px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+.modal-confirm-btn:hover {
   box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
 }
 
