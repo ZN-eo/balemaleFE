@@ -15,22 +15,25 @@
     >
       <div class="bottom-section__fit">
       <!-- WAITING / MOVING 일 때만 차량번호 카드 + 상태 문구 표시 (PARKING이면 정산표만) -->
-      <template
+      <div
         v-if="
           !loading &&
           !loadError &&
           parkedCar &&
           (vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING')
         "
+        class="bottom-section__waiting-moving-content"
       >
         <div class="vehicle-card">{{ parkedCar.plate }}</div>
         <div class="status-message">
           <template v-if="vehicleStatus === 'MOVING'">
             <span class="status-message__node">{{ parkedCar.nodeCode }}</span><span> 위치에 주차중 입니다</span>
           </template>
-          <template v-else> {{ parkedCar.nodeCode }} 위치에 주차 예정입니다 </template>
+          <template v-else>
+            <span class="status-message__node">{{ parkedCar.nodeCode }}</span><span> 위치에 주차 예정입니다</span>
+          </template>
         </div>
-      </template>
+      </div>
 
       <!-- 차량 정보 표 (PARKING일 때만 표시) -->
       <div v-if="vehicleStatus === 'PARKING'" class="bottom-section__parking-content">
@@ -508,10 +511,10 @@ export default {
   flex: 0 0 auto;
   width: 712px;
   max-width: 100%;
-  height: 350px;
-  min-height: 350px;
+  height: 500px;
+  min-height: 500px;
   margin: 0 auto;
-  padding: 0.625rem;
+  padding: 0.5rem 0.625rem 0.625rem 0.625rem;
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -522,10 +525,12 @@ export default {
 }
 
 .bottom-section__waiting-moving-content {
-  margin-top: 125px;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 16px;
 }
@@ -580,7 +585,7 @@ export default {
   box-shadow: var(--shadow-card);
   box-sizing: border-box;
   overflow: hidden;
-  margin-top: 40px;
+  margin-top: 10px;
   background: var(--bg-card);
 }
 
@@ -588,7 +593,7 @@ export default {
   display: grid;
   grid-template-columns: 160px 1fr;
   border-top: 1px solid var(--border-light);
-  height: 80px;
+  height: 75px;
 }
 
 .info-row:first-child {
@@ -674,7 +679,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
     gap: 0.75rem;
   }
 
@@ -713,7 +718,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 1rem;
+    padding: 0.5rem 1rem 1rem 1rem;
     gap: 0.875rem;
   }
 
@@ -758,7 +763,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 1.5rem;
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
     gap: 1.125rem;
   }
 

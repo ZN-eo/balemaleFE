@@ -162,14 +162,14 @@ html.portone-payment-open .app-wrap {
   background: transparent;
 }
 
-/* bottom-section 내부 비율 유지 스케일 래퍼 (712×350 기준).
+/* bottom-section 내부 비율 유지 스케일 래퍼 (712×500 기준).
    뷰에서 .bottom-section에 position: relative; overflow: hidden; 필요 */
 .bottom-section__fit {
   position: absolute;
   top: 0;
   left: 50%;
   width: 712px;
-  height: 350px;
+  height: 500px;
   margin-left: -356px;
   transform: scale(var(--bottom-scale, 1));
   transform-origin: top center;

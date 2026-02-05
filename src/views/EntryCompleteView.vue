@@ -132,10 +132,10 @@ export default {
   flex: 0 0 auto;
   width: 712px;
   max-width: 100%;
-  height: 350px;
-  min-height: 350px;
+  height: 500px;
+  min-height: 500px;
   margin: 0 auto;
-  padding: 0.625rem;
+  padding: 0.5rem 0.625rem 0.625rem 0.625rem;
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -233,7 +233,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
     gap: 0.75rem;
     justify-content: space-between;
   }
@@ -254,7 +254,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 1rem;
+    padding: 0.5rem 1rem 1rem 1rem;
     gap: 0.875rem;
     justify-content: space-between;
   }
@@ -281,7 +281,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 1.5rem;
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
     gap: 1.125rem;
     justify-content: space-between;
   }
