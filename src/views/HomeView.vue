@@ -164,10 +164,10 @@ export default {
   flex: 0 0 auto;
   width: 712px;
   max-width: 100%;
-  height: 350px;
-  min-height: 350px;
+  height: 500px;
+  min-height: 500px;
   margin: 0 auto;
-  padding: 0.625rem;
+  padding: 0.5rem 0.625rem 0.625rem 0.625rem;
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -177,7 +177,15 @@ export default {
   align-items: center;
 }
 
-/* bottom-section(712×350) 안에서 비율 유지하며 꽉 채움 */
+/* bottom-section 전체 높이에 맞춤 (fit 영역을 section과 동일하게) */
+.bottom-section :deep(.bottom-section__fit) {
+  height: 100%;
+  width: 100%;
+  left: 0;
+  margin-left: 0;
+}
+
+/* bottom-section 높이에 맞춰 꽉 채움 */
 .keypad-container {
   width: 100%;
   height: 100%;
@@ -245,7 +253,7 @@ export default {
   padding: 0;
   border: 1px solid var(--border-light);
   background: rgb(221 204 255 / 27%);
-  font-size: clamp(0.975rem, 2.7vw, 2.4rem);
+  font-size: clamp(0.975rem, 3.7vw, 2.4rem);
   font-weight: 600;
   cursor: pointer;
   box-sizing: border-box;
@@ -300,7 +308,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem 0.75rem 0.75rem;
   }
 }
 
@@ -323,7 +331,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 1rem;
+    padding: 0.5rem 1rem 1rem 1rem;
   }
 }
 
@@ -353,7 +361,7 @@ export default {
   }
 
   .bottom-section {
-    padding: 1.5rem;
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
   }
 }
 </style>

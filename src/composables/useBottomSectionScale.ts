@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted, type Ref } from 'vue'
 
 const DESIGN_WIDTH = 712
-const DESIGN_HEIGHT = 350
+const DESIGN_HEIGHT = 500
 
 function updateScale(el: HTMLElement | null) {
   if (!el) return
@@ -13,7 +13,7 @@ function updateScale(el: HTMLElement | null) {
 
 /**
  * bottom-section(ref) 크기에 맞춰 내부 .bottom-section__fit을 비율 유지하며 스케일합니다.
- * 712×350 기준으로 min(section폭/712, section높이/350)을 --bottom-scale로 설정합니다.
+ * 712×500 기준으로 min(section폭/712, section높이/500)을 --bottom-scale로 설정합니다.
  */
 export function useBottomSectionScale(sectionRef: Ref<HTMLElement | null>) {
   let observer: ResizeObserver | null = null
