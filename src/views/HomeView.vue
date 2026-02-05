@@ -6,7 +6,8 @@
     </div>
 
     <!-- 차량 번호 입력 키패드 -->
-    <div class="bottom-section">
+    <div class="bottom-section" ref="bottomSectionRef">
+      <div class="bottom-section__fit">
       <div class="keypad-container">
         <div class="input-fields">
           <input
@@ -45,6 +46,7 @@
         </div>
       </div>
       </div>
+      </div>
     </div>
   </div>
 </template>
@@ -53,6 +55,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
+import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 
 export default {
   name: 'HomeView',
@@ -61,6 +64,8 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const bottomSectionRef = ref(null)
+    useBottomSectionScale(bottomSectionRef)
     const inputDigits = ref(['', '', '', ''])
 
     const inputNumber = (num) => {
@@ -91,6 +96,7 @@ export default {
     }
 
     return {
+      bottomSectionRef,
       inputDigits,
       inputNumber,
       deleteDigit,
@@ -104,18 +110,18 @@ export default {
 .home-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
   background: var(--bg-page);
 }
 
+/* HomeView 기준: top/middle/bottom 비율 — ParkingMap 있는 모든 뷰와 동일 */
 .top-section {
-  padding: 20px;
-  padding-top: 26px;
-  padding-left: 70px;
-  padding-bottom: 0;
+  flex: 0 0 auto;
+  padding: 1.625rem 0 0 4.375rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -123,7 +129,7 @@ export default {
 .robot-status {
   border: 1px solid var(--border-light);
   background: var(--bg-card);
-  padding: 20px;
+  padding: 1.25rem;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
@@ -134,15 +140,16 @@ export default {
 }
 
 .middle-section {
-  flex: 0 0 auto;
-  padding: 0 10px;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0 0.625rem;
   display: flex;
   flex-direction: column;
   gap: 0;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  min-height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .status-banner {
@@ -154,41 +161,54 @@ export default {
 }
 
 .bottom-section {
-  flex: 1;
-  padding: 10px;
-  width: 100%;
+  flex: 0 0 auto;
+  width: 712px;
+  max-width: 100%;
+  height: 350px;
+  min-height: 350px;
+  margin: 0 auto;
+  padding: 0.625rem;
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 0;
 }
 
+/* bottom-section(712×350) 안에서 비율 유지하며 꽉 채움 */
 .keypad-container {
-  padding: 10px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 1.4%;
+  box-sizing: border-box;
   background: transparent;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 21px;
+  justify-content: center;
+  gap: 4%;
 }
 
 .input-fields {
   display: flex;
-  gap: 18px;
+  gap: 2.5%;
   justify-content: center;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .input-field {
-  width: clamp(73px, 21vw, 94px);
-  height: clamp(73px, 21vw, 94px);
+  width: 70px;
+  height: 70px;
   border: 2px solid var(--border-light);
   background: var(--bg-card);
   text-align: center;
-  font-size: clamp(28px, 8vw, 36px);
+  font-size: clamp(0.975rem, 5.64vw, 2.6rem);
+  font-weight: bold;
   color: var(--text-primary);
   box-sizing: border-box;
   border-radius: var(--radius-btn);
@@ -200,26 +220,32 @@ export default {
 }
 
 .keypad {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 85%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-width: 470px;
-  margin: 0 auto;
+  gap: 3%;
 }
 
 .keypad-row {
+  flex: 1;
   display: flex;
-  gap: 16px;
+  gap: 2%;
   justify-content: center;
+  min-height: 0;
 }
 
 .keypad-btn {
-  width: clamp(81px, 23vw, 101px);
-  height: clamp(81px, 23vw, 101px);
+  flex: 1;
+  aspect-ratio: 1;
+  min-width: 0;
+  max-width: 13%;
   padding: 0;
   border: 1px solid var(--border-light);
   background: rgb(221 204 255 / 27%);
-  font-size: clamp(23px, 6.5vw, 29px);
+  font-size: clamp(0.975rem, 2.7vw, 2.4rem);
   font-weight: 600;
   cursor: pointer;
   box-sizing: border-box;
@@ -246,155 +272,88 @@ export default {
 }
 
 .delete-btn-icon {
-  width: 36px;
-  height: 36px;
+  width: 50%;
+  height: 50%;
+  max-width: 42px;
+  max-height: 42px;
 }
 
-/* 모바일 (480px 이하) */
+/* 모바일 (480px 이하) — section 크기 통일 기준 */
 @media (max-width: 480px) {
   .top-section {
-    padding: 12px;
-    padding-top: 20px;
-    padding-left: 12px;
-    padding-bottom: 0;
+    padding: 1.25rem 0 0 0.75rem;
   }
 
   .robot-status {
-    padding: 12px;
-    font-size: 14px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .middle-section {
-    padding: 0 12px;
+    padding: 0 0.75rem;
     gap: 0;
   }
 
   .status-banner {
-    padding: 12px;
-    font-size: 14px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .bottom-section {
-    padding: 12px;
-  }
-
-  .input-field {
-    width: 73px;
-    height: 73px;
-    font-size: 29px;
-  }
-
-  .keypad {
-    max-width: 100%;
-    gap: 13px;
-  }
-
-  .keypad-btn {
-    width: 81px;
-    height: 81px;
-    font-size: 23px;
-  }
-
-  .delete-btn-icon {
-    width: 31px;
-    height: 31px;
+    padding: 0.75rem;
   }
 }
 
-/* 태블릿 (481px ~ 768px) */
+/* 태블릿 (481px ~ 768px) — section 크기 통일 기준 */
 @media (min-width: 481px) and (max-width: 768px) {
   .top-section {
-    padding: 16px;
-    padding-top: 23px;
-    padding-left: 16px;
-    padding-bottom: 0;
+    padding: 1.4375rem 0 0 1rem;
   }
 
   .robot-status {
-    padding: 16px;
+    padding: 1rem;
   }
 
   .middle-section {
-    padding: 0 16px;
+    padding: 0 1rem;
   }
 
   .status-banner {
-    padding: 14px;
+    padding: 0.875rem;
   }
 
   .bottom-section {
-    padding: 16px;
-  }
-
-  .input-field {
-    width: 83px;
-    height: 83px;
-    font-size: 31px;
-  }
-
-  .keypad-btn {
-    width: 83px;
-    height: 83px;
-    font-size: 23px;
-  }
-
-  .delete-btn-icon {
-    width: 34px;
-    height: 34px;
+    padding: 1rem;
   }
 }
 
-/* 데스크톱 (769px 이상) */
+/* 데스크톱 (769px 이상) — section 크기 통일 기준 */
 @media (min-width: 769px) {
   .home-container {
-    max-width: 1200px;
+    max-width: 75rem;
     margin: 0 auto;
   }
 
   .top-section {
-    padding: 24px;
-    padding-top: 26px;
-    padding-left: 24px;
-    padding-bottom: 0;
+    padding: 1.625rem 0 0 1.5rem;
   }
 
   .robot-status {
-    padding: 24px;
-    font-size: 18px;
+    padding: 1.5rem;
+    font-size: 1.125rem;
   }
 
   .middle-section {
-    padding: 0 24px;
+    padding: 0 1.5rem;
   }
 
   .status-banner {
-    padding: 18px;
-    font-size: 16px;
+    padding: 1.125rem;
+    font-size: 1rem;
   }
 
   .bottom-section {
-    padding: 24px;
-  }
-
-  .input-field {
-    width: 94px;
-    height: 94px;
-    font-size: 36px;
-  }
-
-  .keypad {
-    max-width: 360px;
-  }
-
-  .keypad-btn {
-    width: 94px;
-    height: 94px;
-    font-size: 29px;
-  }
-
-  .delete-btn-icon {
-    width: 42px;
-    height: 42px;
+    padding: 1.5rem;
   }
 }
 </style>

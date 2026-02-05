@@ -6,7 +6,8 @@
     </div>
 
     <!-- 하단 섹션 (차량 카드 리스트) -->
-    <div class="bottom-section">
+    <div class="bottom-section" ref="bottomSectionRef">
+      <div class="bottom-section__fit">
       <div class="list-panel" :class="{ 'is-empty': loading || !!errorMessage || cars.length === 0 }">
         <LoadingPanel v-if="loading" />
         <div v-else-if="errorMessage" class="empty-panel">
@@ -30,6 +31,7 @@
       </div>
 
       <button type="button" class="prev-btn" @click="goBack">이전</button>
+      </div>
     </div>
   </div>
 </template>
@@ -40,6 +42,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 import LoadingPanel from '@/components/LoadingPanel.vue'
 import { getRegisterCars } from '@/api/modules/public'
+import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 
 export default {
   name: 'ExitListView',
@@ -50,6 +53,8 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const bottomSectionRef = ref(null)
+    useBottomSectionScale(bottomSectionRef)
 
     const cars = ref([])
     const loading = ref(true)
@@ -101,6 +106,7 @@ export default {
     })
 
     return {
+      bottomSectionRef,
       cars,
       loading,
       errorMessage,
@@ -115,18 +121,18 @@ export default {
 .exit-list-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
   width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
   background: var(--bg-page);
 }
 
+/* HomeView 기준: middle-section 비율 통일 */
 .top-section {
-  padding: 20px;
-  padding-top: 26px;
-  padding-left: 70px;
-  padding-bottom: 0;
+  flex: 0 0 auto;
+  padding: 1.625rem 0 0 4.375rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -134,7 +140,7 @@ export default {
 .robot-status {
   border: 1px solid var(--border-light);
   background: var(--bg-card);
-  padding: 20px;
+  padding: 1.25rem;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
@@ -145,29 +151,34 @@ export default {
 }
 
 .middle-section {
-  flex: 0 0 auto;
-  padding: 0 10px;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0 0.625rem;
   display: flex;
   flex-direction: column;
   gap: 0;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  min-height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .bottom-section {
-  flex: 1;
-  padding: 20px;
-  width: 100%;
+  flex: 0 0 auto;
+  width: 712px;
+  max-width: 100%;
+  height: 350px;
+  min-height: 350px;
+  margin: 0 auto;
+  padding: 0.625rem;
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
   align-items: flex-start;
-  justify-content: space-between;
-  min-height: 0;
+  justify-content: flex-end;
 }
 
 .list-panel {
@@ -252,28 +263,25 @@ export default {
   border-color: var(--color-teal-light);
 }
 
-/* 모바일 (480px 이하) */
+/* 모바일 (480px 이하) — HomeView section 크기 통일 */
 @media (max-width: 480px) {
   .top-section {
-    padding: 12px;
-    padding-top: 20px;
-    padding-left: 12px;
-    padding-bottom: 0;
+    padding: 1.25rem 0 0 0.75rem;
   }
 
   .robot-status {
-    padding: 12px;
-    font-size: 14px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .middle-section {
-    padding: 0 12px;
+    padding: 0 0.75rem;
     gap: 0;
   }
 
   .bottom-section {
-    padding: 12px;
-    gap: 12px;
+    padding: 0.75rem;
+    gap: 0.75rem;
     justify-content: space-between;
   }
 
@@ -292,26 +300,23 @@ export default {
   }
 }
 
-/* 태블릿 (481px ~ 768px) */
+/* 태블릿 (481px ~ 768px) — HomeView section 크기 통일 */
 @media (min-width: 481px) and (max-width: 768px) {
   .top-section {
-    padding: 16px;
-    padding-top: 23px;
-    padding-left: 16px;
-    padding-bottom: 0;
+    padding: 1.4375rem 0 0 1rem;
   }
 
   .robot-status {
-    padding: 16px;
+    padding: 1rem;
   }
 
   .middle-section {
-    padding: 0 16px;
+    padding: 0 1rem;
   }
 
   .bottom-section {
-    padding: 16px;
-    gap: 14px;
+    padding: 1rem;
+    gap: 0.875rem;
     justify-content: space-between;
   }
 
@@ -330,32 +335,29 @@ export default {
   }
 }
 
-/* 데스크톱 (769px 이상) */
+/* 데스크톱 (769px 이상) — HomeView section 크기 통일 */
 @media (min-width: 769px) {
   .exit-list-container {
-    max-width: 1200px;
+    max-width: 75rem;
     margin: 0 auto;
   }
 
   .top-section {
-    padding: 24px;
-    padding-top: 26px;
-    padding-left: 24px;
-    padding-bottom: 0;
+    padding: 1.625rem 0 0 1.5rem;
   }
 
   .robot-status {
-    padding: 24px;
-    font-size: 18px;
+    padding: 1.5rem;
+    font-size: 1.125rem;
   }
 
   .middle-section {
-    padding: 0 24px;
+    padding: 0 1.5rem;
   }
 
   .bottom-section {
-    padding: 24px;
-    gap: 18px;
+    padding: 1.5rem;
+    gap: 1.125rem;
     justify-content: space-between;
   }
 

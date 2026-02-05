@@ -3,7 +3,8 @@
     <div class="middle-section">
       <ParkingMap />
     </div>
-    <div class="bottom-section">
+    <div class="bottom-section" ref="bottomSectionRef">
+      <div class="bottom-section__fit">
       <div class="content-wrap">
         <div class="complete-panel">
           <div class="plate-box">{{ formattedPlate }}</div>
@@ -15,6 +16,7 @@
       <div class="action-bar">
         <button type="button" class="prev-btn" @click="goBack">이전</button>
         <button type="button" class="enter-btn" @click="enter">입차하기</button>
+      </div>
       </div>
     </div>
 
@@ -32,6 +34,7 @@
 import ParkingMap from '@/components/ParkingMap.vue'
 import { registerVehicleWithOcr } from '@/api/modules/parking'
 import { getParkedCars, getParkingMap } from '@/api/modules/public'
+import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -43,6 +46,8 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const bottomSectionRef = ref(null)
+    useBottomSectionScale(bottomSectionRef)
 
     const plateRaw = route.query.plate
     const plateFromQuery = Array.isArray(plateRaw) ? plateRaw[0] : plateRaw
@@ -146,6 +151,7 @@ export default {
     }
 
     return {
+      bottomSectionRef,
       formattedPlate,
       goBack,
       enter,
@@ -160,18 +166,18 @@ export default {
 .entry-register-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
   width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
   background: var(--bg-page);
 }
 
+/* HomeView 기준: middle-section 비율 통일 */
 .top-section {
-  padding: 20px;
-  padding-top: 26px;
-  padding-left: 70px;
-  padding-bottom: 0;
+  flex: 0 0 auto;
+  padding: 1.625rem 0 0 4.375rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -179,7 +185,7 @@ export default {
 .robot-status {
   border: 1px solid var(--border-light);
   background: var(--bg-card);
-  padding: 20px;
+  padding: 1.25rem;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
@@ -190,29 +196,34 @@ export default {
 }
 
 .middle-section {
-  flex: 0 0 auto;
-  padding: 0 10px;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0 0.625rem;
   display: flex;
   flex-direction: column;
   gap: 0;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  min-height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .bottom-section {
-  flex: 1;
-  padding: 20px;
-  width: 100%;
+  flex: 0 0 auto;
+  width: 712px;
+  max-width: 100%;
+  height: 350px;
+  min-height: 350px;
+  margin: 0 auto;
+  padding: 0.625rem;
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
   align-items: flex-start;
-  justify-content: space-between;
-  min-height: 0;
+  justify-content: flex-end;
 }
 
 .content-wrap {
@@ -221,39 +232,40 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateY(-24px); /* 세로 중앙보다 살짝 위 */
+  margin-top: -1.5rem;
 }
 
 .complete-panel {
   width: 100%;
-  max-width: 760px;
+  max-width: min(47.5rem, 100%);
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   box-sizing: border-box;
-  padding: clamp(28px, 6vw, 56px) clamp(16px, 4vw, 32px);
+  padding: clamp(1.75rem, 4vh, 3.5rem) clamp(1rem, 2.5vh, 2rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 4.5vw, 34px);
+  gap: clamp(1.125rem, 2.5vh, 2.125rem);
 }
 
 .plate-box {
-  width: min(520px, 100%);
+  width: min(32.5rem, 100%);
   border: 2px solid var(--color-teal-light);
   border-radius: var(--radius-btn);
   background: var(--bg-card);
-  height: 60px;
-  padding: 0 18px;
+  min-height: var(--touch-min-height, 3rem);
+  height: 3.75rem;
+  padding: 0 1.125rem;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-weight: 700;
-  font-size: clamp(20px, 5vw, 32px);
+  font-size: clamp(1rem, 1.2vh, 1.25rem);
   letter-spacing: 0.08em;
   color: var(--text-primary);
 }
@@ -261,7 +273,7 @@ export default {
 .entry-title {
   color: var(--color-teal);
   font-weight: 800;
-  font-size: clamp(22px, 6vw, 40px);
+  font-size: clamp(1.125rem, 1.5vh, 2.5rem);
   letter-spacing: 0.18em;
   text-align: center;
 }
@@ -269,7 +281,7 @@ export default {
 .entry-warning {
   color: var(--color-error);
   font-weight: 800;
-  font-size: clamp(18px, 5vw, 34px);
+  font-size: clamp(1rem, 1.2vh, 1.5rem);
   letter-spacing: 0.12em;
   text-align: center;
 }
@@ -279,18 +291,24 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+}
+
+.prev-btn,
+.enter-btn {
+  min-height: var(--touch-min-height, 3rem);
+  padding: 0.75rem 1.5rem;
+  font-size: clamp(1rem, 1.2vh, 1.125rem);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-btn);
+  box-sizing: border-box;
 }
 
 .prev-btn {
   background-color: var(--bg-card);
   color: var(--text-primary);
   border: 2px solid var(--border-light);
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: var(--radius-btn);
-  box-sizing: border-box;
   box-shadow: var(--shadow-card);
 }
 .prev-btn:hover {
@@ -301,16 +319,10 @@ export default {
   background: var(--gradient-primary);
   color: #fff;
   border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: var(--radius-btn);
-  box-sizing: border-box;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 0.25rem 0.75rem rgba(124, 58, 237, 0.35);
 }
 .enter-btn:hover {
-  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 0.375rem 1rem rgba(124, 58, 237, 0.45);
 }
 
 /* 만차 모달 */
@@ -327,160 +339,148 @@ export default {
   background: var(--bg-card);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 28px 32px 24px;
-  min-width: 280px;
+  padding: 1.75rem 2rem 1.5rem;
+  min-width: 17.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 1.25rem;
 }
 .modal-message {
   margin: 0;
-  font-size: 18px;
+  font-size: clamp(1rem, 1.2vh, 1.125rem);
   font-weight: 700;
   color: var(--text-primary);
   text-align: center;
 }
 .modal-confirm-btn {
   align-self: center;
-  margin-top: 4px;
-  padding: 10px 28px;
-  font-size: 16px;
+  min-height: var(--touch-min-height, 3rem);
+  margin-top: 0.25rem;
+  padding: 0.625rem 1.75rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #fff;
   background: var(--gradient-primary);
   border: none;
   border-radius: var(--radius-btn);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 0.25rem 0.75rem rgba(124, 58, 237, 0.35);
 }
 .modal-confirm-btn:hover {
-  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 0.375rem 1rem rgba(124, 58, 237, 0.45);
 }
 
-/* 모바일 (480px 이하) */
+/* 모바일 (480px 이하) — HomeView section 크기 통일 */
 @media (max-width: 480px) {
   .top-section {
-    padding: 12px;
-    padding-top: 20px;
-    padding-left: 12px;
-    padding-bottom: 0;
+    padding: 1.25rem 0 0 0.75rem;
   }
 
   .robot-status {
-    padding: 12px;
-    font-size: 14px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .middle-section {
-    padding: 0 12px;
-    gap: 0;
+    padding: 0 0.75rem;
   }
 
   .bottom-section {
-    padding: 12px;
-    gap: 12px;
-    justify-content: space-between;
+    padding: 0.75rem;
+    gap: 0.75rem;
   }
 
   .content-wrap {
-    transform: translateY(-14px);
+    margin-top: -0.875rem;
   }
 
   .complete-panel {
-    padding: 22px 14px;
+    padding: 1.375rem 0.875rem;
   }
 
   .plate-box {
-    font-size: 45px;
+    font-size: 1.25rem;
   }
 
   .prev-btn,
   .enter-btn {
-    padding: 10px 20px;
-    font-size: 14px;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
   }
 }
 
-/* 태블릿 (481px ~ 768px) */
+/* 태블릿 (481px ~ 768px) — HomeView section 크기 통일 */
 @media (min-width: 481px) and (max-width: 768px) {
   .top-section {
-    padding: 16px;
-    padding-top: 23px;
-    padding-left: 16px;
-    padding-bottom: 0;
+    padding: 1.4375rem 0 0 1rem;
   }
 
   .robot-status {
-    padding: 16px;
+    padding: 1rem;
   }
 
   .middle-section {
-    padding: 0 16px;
+    padding: 0 1rem;
   }
 
   .bottom-section {
-    padding: 16px;
-    gap: 14px;
-    justify-content: space-between;
+    padding: 1rem;
+    gap: 0.875rem;
   }
 
   .content-wrap {
-    transform: translateY(-18px);
+    margin-top: -1.125rem;
   }
 
   .complete-panel {
-    padding: 34px 18px;
+    padding: 2.125rem 1.125rem;
   }
 
   .prev-btn,
   .enter-btn {
-    padding: 11px 22px;
-    font-size: 15px;
+    padding: 0.6875rem 1.375rem;
+    font-size: 0.9375rem;
   }
 }
 
-/* 데스크톱 (769px 이상) */
+/* 데스크톱 (769px 이상) — HomeView section 크기 통일 */
 @media (min-width: 769px) {
   .entry-register-container {
-    max-width: 1200px;
+    max-width: 75rem;
     margin: 0 auto;
   }
 
   .top-section {
-    padding: 24px;
-    padding-top: 26px;
-    padding-left: 24px;
-    padding-bottom: 0;
+    padding: 1.625rem 0 0 1.5rem;
   }
 
   .robot-status {
-    padding: 24px;
-    font-size: 18px;
+    padding: 1.5rem;
+    font-size: 1.125rem;
   }
 
   .middle-section {
-    padding: 0 24px;
+    padding: 0 1.5rem;
   }
 
   .bottom-section {
-    padding: 24px;
-    gap: 18px;
-    justify-content: space-between;
+    padding: 1.5rem;
+    gap: 1.125rem;
   }
 
   .content-wrap {
-    transform: translateY(-22px);
+    margin-top: -1.375rem;
   }
 
   .complete-panel {
-    padding: 56px 24px;
+    padding: 3.5rem 1.5rem;
   }
 
   .prev-btn,
   .enter-btn {
-    padding: 14px 28px;
-    font-size: 18px;
+    padding: 0.875rem 1.75rem;
+    font-size: 1.125rem;
   }
 }
 </style>

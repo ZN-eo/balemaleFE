@@ -259,13 +259,16 @@ export default defineComponent({
 
 <style scoped>
 .parking-map {
-  --map-padding: clamp(12px, 2.6vw, 16px);
-  --section-gap: clamp(12px, 3vw, 18px);
-  --zone-padding: clamp(8px, 2.2vw, 10px);
-  --badge-font: clamp(12px, 2.6vw, 16px);
-  --icon-size: clamp(22px, 4.2vw, 26px);
-  --icon-font: clamp(16px, 3.2vw, 18px);
+  --map-padding: clamp(0.75rem, 1.5vh, 1rem);
+  --section-gap: clamp(0.75rem, 1.8vh, 1.125rem);
+  --zone-padding: clamp(0.5rem, 1.2vh, 0.625rem);
+  --badge-font: clamp(0.75rem, 1.2vh, 1rem);
+  --icon-size: clamp(1.375rem, 1.5vh, 1.625rem);
+  --slot-w: 5.3125rem;
+  --slot-h: 6.875rem;
 
+  flex: 1 1 0;
+  min-height: 0;
   font-family: var(--font-sans);
   border: 1px solid var(--border-light);
   background: var(--bg-card);
@@ -284,50 +287,72 @@ export default defineComponent({
 }
 
 .parking-grids-container {
+  flex: 1 1 0;
+  min-height: 0;
   width: 100%;
-  max-width: clamp(275px, calc(92vw - 5px), 615px);
+  max-width: min(38.4375rem, 92%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0;
-  align-items: center;
-}
-
-.parking-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 85px);
-  gap: 0;
-  width: 100%;
-  box-sizing: border-box;
-  justify-content: center;
-}
-
-.parking-grid.top-grid {
-  grid-template-rows: repeat(2, 110px);
-}
-
-.parking-grid.bottom-grid {
-  grid-template-rows: 110px;
-}
-
-.parking-spot-wrap {
-  position: relative;
-  width: 85px;
-  height: 110px;
+  align-items: stretch;
+  justify-content: stretch;
 }
 
 .zone {
+  flex: 1 1 0;
+  min-height: 0;
   width: 100%;
   padding: var(--zone-padding);
   box-sizing: border-box;
   background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
-/* 주차칸: 85 * 110, 점선 주차선, 모서리 직각 */
-.parking-spot {
-  width: 85px;
-  height: 110px;
+.zone-top {
+  flex: 2 1 0;
+}
+
+.zone-bottom {
+  flex: 1 1 0;
+}
+
+.parking-grid {
+  flex: 1 1 0;
   min-height: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  box-sizing: border-box;
+  align-items: stretch;
+  justify-items: stretch;
+}
+
+.parking-grid.top-grid {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.parking-grid.bottom-grid {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.parking-spot-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 주차칸: 컨테이너 높이까지 비율 유지하며 채움 */
+.parking-spot {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
   border: 1px dashed var(--border-light);
   border-radius: 0;
   background: var(--bg-card);
@@ -336,7 +361,7 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 6px 8px 8px;
+  padding: 0.375rem 0.5rem 0.5rem;
   position: relative;
 }
 
@@ -357,12 +382,12 @@ export default defineComponent({
   z-index: 0;
   top: 50%;
   left: 50%;
-  width: 64px;
-  height: 64px;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
   background-color: #b085f5;
   opacity: 0.75;
-  filter: blur(14px);
+  filter: blur(0.875rem);
   animation: blob-bounce 5s infinite ease;
   pointer-events: none;
 }
@@ -388,7 +413,7 @@ export default defineComponent({
 .parking-spot.selected::after {
   content: '';
   position: absolute;
-  inset: 5px;
+  inset: 0.3125rem;
   border-radius: 0;
   background: linear-gradient(
     180deg,
@@ -396,7 +421,7 @@ export default defineComponent({
     rgba(236, 232, 255, 0.65) 50%,
     rgba(250, 245, 255, 0.7) 100%
   );
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(0.375rem);
   z-index: 1;
 }
 
@@ -443,12 +468,12 @@ export default defineComponent({
 .slot-code {
   flex-shrink: 0;
   display: inline-block;
-  padding: 4px 10px;
+  padding: 0.375rem 0.9375rem;
   border-radius: 9999px;
-  font-size: clamp(11px, 2.6vw, 14px);
+  font-size: clamp(1.03125rem, 1.8vh, 1.3125rem);
   font-weight: 700;
   letter-spacing: 0.02em;
-  margin-top: 4px;
+  margin-top: 0.375rem;
 }
 .slot-code.occupied {
   background: var(--border-light);
@@ -537,20 +562,20 @@ export default defineComponent({
 }
 
 .available-text {
-  font-size: clamp(10px, 2.4vw, 13px);
+  font-size: clamp(0.9375rem, 1.8vh, 1.21875rem);
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.02em;
-  margin-top: 21px;
+  margin-top: 1.3125rem;
 }
 
 /* 장애인 아이콘: spot-center 우측 상단, slot-code와 동일 색상 */
 .disabled-icon {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: var(--icon-size);
-  height: var(--icon-size);
+  top: 0.25rem;
+  right: 0.25rem;
+  width: calc(var(--icon-size) * 1.5);
+  height: calc(var(--icon-size) * 1.5);
   color: var(--color-teal);
   display: block;
   flex-shrink: 0;
@@ -558,27 +583,28 @@ export default defineComponent({
 }
 
 .parking-info {
+  flex-shrink: 0;
   width: 100%;
-  max-width: clamp(275px, calc(92vw - 5px), 615px);
+  max-width: min(38.4375rem, 92%);
   margin: 0 auto;
 }
 
 .info-text {
   background: var(--bg-card);
-  padding: clamp(10px, 2.2vw, 12px) clamp(12px, 2.6vw, 14px);
+  padding: clamp(0.9375rem, 1.8vh, 1.125rem) clamp(1.125rem, 1.8vh, 1.3125rem);
   text-align: center;
-  font-size: var(--badge-font);
+  font-size: clamp(1.125rem, 1.8vh, 1.5rem);
   font-weight: 700;
   color: var(--text-secondary);
   border: 1px solid var(--border-light);
-  border-radius: 10px;
+  border-radius: 0.625rem;
   box-sizing: border-box;
 }
 
 .info-text .label,
 .info-text .value,
 .info-text .divider {
-  font-size: 18px;
+  font-size: clamp(1.5rem, 1.8vh, 1.6875rem);
 }
 
 .label {
@@ -586,12 +612,12 @@ export default defineComponent({
 }
 
 .divider {
-  margin: 0 8px;
+  margin: 0 0.5rem;
   color: var(--text-muted);
 }
 
 .value {
-  margin: 0 6px;
+  margin: 0 0.375rem;
   color: var(--color-primary);
 }
 
@@ -606,61 +632,67 @@ export default defineComponent({
 /* 모바일 (480px 이하) */
 @media (max-width: 480px) {
   .parking-map {
-    padding: 12px;
-    gap: 12px;
+    padding: 0.75rem;
+    gap: 0.75rem;
   }
 
   .parking-grids-container {
     max-width: 100%;
   }
 
-  .parking-grid {
-    gap: 0;
-  }
-
   .zone {
-    padding: 8px;
+    padding: 0.5rem;
   }
 
   .parking-spot {
-    padding: 5px 6px 6px;
+    padding: 0.3125rem 0.375rem 0.375rem;
   }
 
   .slot-code {
-    padding: 3px 8px;
-    font-size: 11px;
+    padding: 0.28125rem 0.75rem;
+    font-size: 1.03125rem;
   }
 
   .disabled-icon {
-    width: 22px;
-    height: 22px;
+    width: 2.0625rem;
+    height: 2.0625rem;
   }
 
   .info-text {
-    padding: 10px 12px;
-    font-size: 12px;
+    padding: 0.9375rem 1.125rem;
+    font-size: 1.125rem;
+  }
+
+  .info-text .label,
+  .info-text .value,
+  .info-text .divider {
+    font-size: 1.125rem;
   }
 }
 
 /* 태블릿 (481px ~ 768px) */
 @media (min-width: 481px) and (max-width: 768px) {
   .parking-grids-container {
-    max-width: 560px;
+    max-width: 35rem;
   }
 
-  .info-text {
-    font-size: 13px;
+  .info-text .label,
+  .info-text .value,
+  .info-text .divider {
+    font-size: 1.21875rem;
   }
 }
 
 /* 데스크톱 (769px 이상) */
 @media (min-width: 769px) {
   .parking-grids-container {
-    max-width: 620px;
+    max-width: 38.75rem;
   }
 
-  .info-text {
-    font-size: 16px;
+  .info-text .label,
+  .info-text .value,
+  .info-text .divider {
+    font-size: 1.5rem;
   }
 }
 </style>

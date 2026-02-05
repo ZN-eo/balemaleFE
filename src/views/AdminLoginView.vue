@@ -95,7 +95,8 @@ export default {
 .admin-login-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   width: 100%;
   background: var(--bg-page);
   padding: 20px;
@@ -103,9 +104,11 @@ export default {
   padding-left: 70px;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
 }
 
 .header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   margin-bottom: 190px;
@@ -202,6 +205,9 @@ export default {
 }
 
 .login-card {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   padding: 40px;

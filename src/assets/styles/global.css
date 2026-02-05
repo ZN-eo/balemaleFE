@@ -62,8 +62,9 @@
   font-display: swap;
 }
 
-/* 디자인 토큰: 흰 배경, 보라/라벤더 그라데이션, 연한 청록 악센트 */
+/* 디자인 토큰 + rem 기준 (Galaxy Tab S7+ portrait: 1752×2800, 확대/축소 시 동일 비율) */
 :root {
+  --base: clamp(15px, 1.6vh, 18px);
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
   --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 45%, #a78bfa 100%);
@@ -76,25 +77,36 @@
   --text-muted: #64748b;
   --border-light: #e2e8f0;
   --border-spot: #cbd5e1;
-  --radius-btn: 12px;
-  --radius-card: 16px;
-  --shadow-card: 0 2px 8px rgba(30, 41, 59, 0.08);
+  --radius-btn: 0.75rem;
+  --radius-card: 1rem;
+  --shadow-card: 0 0.125rem 0.5rem rgba(30, 41, 59, 0.08);
   --font-sans: 'Suit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* 터치 UI: 버튼 최소 높이 3rem 권장 */
+  --touch-min-height: 3rem;
 }
 
+/* 전역 스케일 기준: Galaxy Tab S7+ portrait 통일 */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+html,
+body,
+#app {
+  height: 100%;
+}
+
 html {
+  font-size: var(--base);
   scrollbar-width: thin;
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0.5rem;
+  height: 0.5rem;
 }
 
 body {
@@ -103,6 +115,8 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100%;
 }
 
 /* 결제창(포트원) 오픈 시: 스크롤 비활성화 + scale/zoom/transform 초기화
@@ -120,7 +134,9 @@ html.portone-payment-open .app-wrap {
 }
 
 #app {
-  min-height: 100vh;
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
   background: var(--bg-page);
 }
 
@@ -146,25 +162,90 @@ html.portone-payment-open .app-wrap {
   background: transparent;
 }
 
-/* 공통 조회 중 패널 (exit/payment 정산표와 동일한 크기감) */
+/* bottom-section 내부 비율 유지 스케일 래퍼 (712×350 기준).
+   뷰에서 .bottom-section에 position: relative; overflow: hidden; 필요 */
+.bottom-section__fit {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 712px;
+  height: 350px;
+  margin-left: -356px;
+  transform: scale(var(--bottom-scale, 1));
+  transform-origin: top center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: inherit;
+  gap: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+}
+
+/* 공통 조회 중 패널 (rem 기반) */
 .loading-panel {
   width: 100%;
-  min-height: 400px;
+  min-height: 22rem;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 24px 16px;
+  padding: 1.5rem 1rem;
   text-align: center;
-  font-size: 21px;
+  font-size: clamp(1rem, 1.2vh, 1.25rem);
   background: var(--bg-card);
   color: var(--text-primary);
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 2.5rem;
 }
 
 .loading-panel--error {
   color: var(--color-error);
+}
+
+/* ========== 키오스크 해상도 2160×3840 (세로) ==========
+   index.html에서 2160×3840일 때 viewport를 1080×1920으로 고정하여
+   레이아웃이 1080×1920으로 계산되고 브라우저가 2배로 채우도록 함.
+   아래 미디어쿼리는 viewport 미적용 시(다른 대형 해상도) 폴백용. */
+@media (min-width: 2100px) and (min-height: 3800px) {
+  html {
+    font-size: 18px;
+  }
+
+  #app,
+  #app.app-with-gradient {
+    min-height: 100vh;
+    height: 100vh;
+  }
+
+  /* 컨테이너 최대 너비 확대 (전체 화면 활용) */
+  #app.app-with-gradient .home-container,
+  #app.app-with-gradient .select-container,
+  #app.app-with-gradient .entry-list-container,
+  #app.app-with-gradient .entry-register-container,
+  #app.app-with-gradient .entry-complete-container,
+  #app.app-with-gradient .exit-list-container,
+  #app.app-with-gradient .exit-payment-container,
+  #app.app-with-gradient .exit-complete-container {
+    max-width: 2160px;
+  }
+
+  .entry-list-container,
+  .entry-register-container,
+  .entry-complete-container,
+  .exit-list-container,
+  .exit-payment-container,
+  .exit-complete-container,
+  .select-container,
+  .home-container {
+    max-width: 2160px;
+  }
+
+  .loading-panel {
+    min-height: 28rem;
+    font-size: 1.5rem;
+    padding: 2rem 1.5rem;
+  }
 }
