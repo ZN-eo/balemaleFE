@@ -55,7 +55,9 @@ export default defineComponent({
     <template v-else>
       <div class="app-layout">
         <div class="top-section">
-          <RobotStatus />
+          <div class="top-section-inner">
+            <RobotStatus />
+          </div>
         </div>
         <main class="app-main">
           <router-view />
@@ -68,78 +70,105 @@ export default defineComponent({
 <style scoped>
 .app-wrap {
   position: relative;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
 }
 
 .app-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
 .top-section {
-  padding: 20px;
-  padding-top: 26px;
-  padding-left: 70px;
-  padding-bottom: 0;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.625rem 0 0;
   width: 100%;
   box-sizing: border-box;
-  flex-shrink: 0;
+}
+
+/* parking-map과 동일한 너비(뷰 middle-section 기준) */
+.top-section-inner {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 0.625rem;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .top-section-inner {
+    padding: 0 0.75rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .top-section-inner {
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .top-section-inner {
+    max-width: 75rem;
+    padding: 0 1.5rem;
+  }
 }
 
 .app-main {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* 관리자 버튼 - top-padding 영역 안에 들어가도록 얇게 */
+/* 관리자 버튼 - fixed는 네비게이션용으로만 사용 */
 .admin-btn {
   position: fixed;
-  top: 20px;
-  /* max-width: 1200 컨테이너(중앙정렬) 안쪽 기준으로 위치 */
-  left: max(70px, calc(50% - 600px + 70px));
-  width: 60px;
-  height: 14px;
+  top: 1.25rem;
+  left: max(4.375rem, calc(50% - 37.5rem + 4.375rem));
+  width: 3.75rem;
+  min-height: var(--touch-min-height, 3rem);
+  height: 0.875rem;
   background: transparent;
   border: none;
   cursor: pointer;
   z-index: 9999;
 }
 
-/* 모바일 (480px 이하) - padding-top 20px 안에 */
 @media (max-width: 480px) {
   .admin-btn {
-    top: 12px;
-    left: max(12px, calc(50% - 600px + 12px));
-    width: 60px;
-    height: 12px;
+    top: 0.75rem;
+    left: max(0.75rem, calc(50% - 37.5rem + 0.75rem));
+    width: 3.75rem;
+    height: 0.75rem;
   }
 }
 
-/* 태블릿 (481px ~ 768px) - padding-top 23px 안에 */
 @media (min-width: 481px) and (max-width: 768px) {
   .admin-btn {
-    top: 16px;
-    left: max(16px, calc(50% - 600px + 16px));
-    width: 60px;
-    height: 13px;
+    top: 1rem;
+    left: max(1rem, calc(50% - 37.5rem + 1rem));
+    width: 3.75rem;
+    height: 0.8125rem;
   }
 }
 
-/* 데스크톱 (769px 이상) - padding-top 26px 안에 */
 @media (min-width: 769px) {
   .admin-btn {
-    top: 24px;
-    left: max(24px, calc(50% - 600px + 24px));
-    width: 60px;
-    height: 14px;
+    top: 1.5rem;
+    left: max(1.5rem, calc(50% - 37.5rem + 1.5rem));
+    width: 3.75rem;
+    height: 0.875rem;
   }
 }
 </style>

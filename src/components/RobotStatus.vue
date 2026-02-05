@@ -65,16 +65,17 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0.5rem;
   flex-wrap: wrap;
   border: 1px solid var(--border-light);
   background: var(--bg-card);
-  padding: 20px;
+  padding: 1.25rem;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
   color: var(--color-teal);
   font-weight: 700;
+  font-size: clamp(1rem, 1.2vh, 1.125rem);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
@@ -89,6 +90,7 @@ export default defineComponent({
 
 .robot-status-waiting {
   opacity: 0.9;
+  font-size: clamp(1.5rem, 1.8vh, 1.6875rem);
 }
 
 .badge--primary {

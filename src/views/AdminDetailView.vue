@@ -173,7 +173,8 @@ export default {
 
 <style scoped>
 .admin-detail-container {
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   width: 100%;
   background: var(--bg-page);
   padding: 20px;
@@ -183,9 +184,11 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .header {
+  flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -194,6 +197,10 @@ export default {
 }
 
 .card-section {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
