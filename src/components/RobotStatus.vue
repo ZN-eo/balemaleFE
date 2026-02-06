@@ -1,9 +1,9 @@
 <template>
   <div class="robot-status">
-    <template v-if="wsStore.lastRobotEvent">
+    <template v-if="lastRobotEvent">
       <span class="robot-status-label">주차로봇</span>
-      <span :class="['robot-status-value', eventTypeClass(wsStore.lastRobotEvent.robotEventType)]">
-        {{ robotEventLabel(wsStore.lastRobotEvent.robotEventType) }}
+      <span :class="['robot-status-value', statusClass]">
+        {{ statusLabel }}
       </span>
     </template>
     <span v-else class="robot-status-value robot-status-waiting">주차로봇 대기중</span>
@@ -11,8 +11,9 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { defineComponent } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useWsStore } from '@/stores/wsStore'
 import { subscribeRobotEvent, unsubscribeRobotEvent } from '@/api/websocket/wsApi'
 import type { RobotEventType } from '@/api/websocket/wsApi'
@@ -25,24 +26,30 @@ const ROBOT_EVENT_LABELS: Record<RobotEventType, string> = {
   FAILED: '실패'
 }
 
+function eventTypeClass(type: RobotEventType): string {
+  if (type === 'ESTOP' || type === 'FAILED') return 'badge--danger'
+  if (type === 'WAITING') return 'badge--info'
+  return 'badge--primary'
+}
+
 export default defineComponent({
   name: 'RobotStatus',
   setup() {
     const wsStore = useWsStore()
+    const { lastRobotEvent } = storeToRefs(wsStore)
 
-    const robotEventLabel = (type: RobotEventType): string =>
-      ROBOT_EVENT_LABELS[type] ?? type
+    const statusLabel = computed(() => {
+      const type = lastRobotEvent.value?.robotEventType
+      return type != null ? (ROBOT_EVENT_LABELS[type] ?? type) : '대기중'
+    })
 
-    const eventTypeClass = (type: RobotEventType): string => {
-      if (type === 'ESTOP' || type === 'FAILED') return 'badge--danger'
-      if (type === 'WAITING') return 'badge--info'
-      return 'badge--primary'
-    }
+    const statusClass = computed(() => {
+      const type = lastRobotEvent.value?.robotEventType
+      return type != null ? eventTypeClass(type) : 'badge--info'
+    })
 
     onMounted(() => {
-      console.log('subscribeRobotEvent')
       subscribeRobotEvent((data) => {
-        console.log('robot-event', data)
         wsStore.setRobotEvent(data)
       })
     })
@@ -52,9 +59,9 @@ export default defineComponent({
     })
 
     return {
-      wsStore,
-      robotEventLabel,
-      eventTypeClass
+      lastRobotEvent,
+      statusLabel,
+      statusClass
     }
   }
 })
