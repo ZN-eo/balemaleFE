@@ -6,7 +6,7 @@
     </div>
 
     <!-- 하단 섹션 (차량 카드 리스트) -->
-    <div class="bottom-section" ref="bottomSectionRef">
+    <div class="bottom-section">
       <div class="bottom-section__fit">
       <div class="list-panel" :class="{ 'is-empty': loading || !!errorMessage || cars.length === 0 }">
         <LoadingPanel v-if="loading" />
@@ -42,7 +42,6 @@ import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 import LoadingPanel from '@/components/LoadingPanel.vue'
 import { getRegisterCars } from '@/api/modules/public'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 
 export default {
   name: 'ExitListView',
@@ -53,8 +52,6 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
 
     const cars = ref([])
     const loading = ref(true)
@@ -106,7 +103,6 @@ export default {
     })
 
     return {
-      bottomSectionRef,
       cars,
       loading,
       errorMessage,
@@ -165,8 +161,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

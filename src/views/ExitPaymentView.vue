@@ -8,7 +8,6 @@
     <!-- 하단 섹션 -->
     <div
       class="bottom-section"
-      ref="bottomSectionRef"
       :class="{
         'bottom-section--waiting-moving': vehicleStatus === 'WAITING' || vehicleStatus === 'MOVING'
       }"
@@ -153,9 +152,9 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 import LoadingPanel from '@/components/LoadingPanel.vue'
-import { getRegisterCars, getParkedCars, getParkingMap } from '@/api/modules/public'
+import { getRegisterCars, getParkedCars } from '@/api/modules/public'
 import { preparePayment } from '@/api/modules/payment'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 
 export default {
   name: 'ExitPaymentView',
@@ -166,8 +165,6 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
     const parkedCar = ref(null)
     const loading = ref(true)
     const loadError = ref('')
@@ -387,18 +384,12 @@ export default {
         })
 
         if (response?.code == null) {
-          // 결제 성공 → 완료 모달 표시 후 확인 시 완료 페이지로
-          let parkingMapData = null
-          try {
-            const mapRes = await getParkingMap()
-            const list = mapRes?.data?.data ?? mapRes?.data ?? []
-            if (Array.isArray(list) && list.length >= 12) parkingMapData = list
-          } catch (e) {
-            if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
-          }
+          // 결제 성공 → 맵 갱신 후 완료 모달 표시
+          await useParkingMapStore().fetchParkingMap()
+          const parkingMapStore = useParkingMapStore()
           paymentSuccessData.value = {
             paymentResult: response,
-            parkingMapData: parkingMapData ?? undefined
+            parkingMapData: parkingMapStore.mapData ?? undefined
           }
           showPaymentSuccessModal.value = true
           successModalAutoCloseTimer = setTimeout(() => {
@@ -442,7 +433,6 @@ export default {
     })
 
     return {
-      bottomSectionRef,
       parkedCar,
       loading,
       loadError,
@@ -509,8 +499,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

@@ -8,7 +8,9 @@
 </template>
 
 <script>
+import { computed } from 'vue'
 import ParkingMap from '@/components/ParkingMap.vue'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 
 export default {
   name: 'ExitCompleteView',
@@ -16,7 +18,10 @@ export default {
     ParkingMap
   },
   setup() {
-    const parkingMapData = history.state?.parkingMapData ?? null
+    const parkingMapStore = useParkingMapStore()
+    const parkingMapData = computed(
+      () => history.state?.parkingMapData ?? parkingMapStore.mapData ?? null
+    )
     return { parkingMapData }
   }
 }
@@ -70,8 +75,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

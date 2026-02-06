@@ -162,22 +162,19 @@ html.portone-payment-open .app-wrap {
   background: transparent;
 }
 
-/* bottom-section 내부 비율 유지 스케일 래퍼 (800×500 기준).
-   뷰에서 .bottom-section에 position: relative; overflow: hidden; 필요 */
+/* bottom-section 내부: ParkingMap과 동일하게 너비 100% 반응형 (section과 같은 폭) */
 .bottom-section__fit {
   position: absolute;
   top: 0;
-  left: 50%;
-  width: 800px;
-  height: 500px;
-  transform: translateX(-50%) scale(var(--bottom-scale, 1));
-  transform-origin: top center;
+  left: 0;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: inherit;
-  padding-left: 0;
-  padding-right: 0;
+  /* padding-left: 0;
+  padding-right: 0; */
   gap: inherit;
   align-items: inherit;
   justify-content: inherit;

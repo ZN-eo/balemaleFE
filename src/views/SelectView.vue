@@ -6,7 +6,7 @@
     </div>
 
     <!-- 하단 섹션 - 버튼 영역 -->
-    <div class="bottom-section" ref="bottomSectionRef">
+    <div class="bottom-section">
       <div class="bottom-section__fit">
         <div class="action-panel">
           <div class="button-container">
@@ -25,10 +25,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 
 export default {
   name: 'SelectView',
@@ -36,8 +34,6 @@ export default {
     ParkingMap
   },
   setup() {
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
     const route = useRoute()
     const router = useRouter()
 
@@ -60,7 +56,6 @@ export default {
     }
 
     return {
-      bottomSectionRef,
       goToExitList,
       goToEntryList,
       goToHome
@@ -125,8 +120,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

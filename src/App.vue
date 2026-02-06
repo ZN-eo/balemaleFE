@@ -2,6 +2,7 @@
 import { defineComponent } from 'vue'
 import { connect, disconnect } from './api/websocket/stompClient'
 import RobotStatus from '@/components/RobotStatus.vue'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 
 export default defineComponent({
   name: 'App',
@@ -15,8 +16,11 @@ export default defineComponent({
       $route: 'updateAppBackground'
     },
   mounted() {
-      this.initSocket(),
+      this.initSocket()
       this.updateAppBackground()
+      if (!this.isAdminRoute) {
+        useParkingMapStore().fetchParkingMap()
+      }
     },
   beforeUnmount() {
     disconnect()
