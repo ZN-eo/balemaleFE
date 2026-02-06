@@ -6,7 +6,7 @@
         :highlighted-slot-code="highlightedSlotCode"
       />
     </div>
-    <div class="bottom-section" ref="bottomSectionRef">
+    <div class="bottom-section">
       <div class="bottom-section__fit">
       <div class="complete-panel">
         <div class="plate-box">{{ formattedPlate }}</div>
@@ -27,7 +27,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 import { getParkedCars } from '@/api/modules/public'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 
 export default {
   name: 'EntryCompleteView',
@@ -37,9 +37,10 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
-    const parkingMapData = history.state?.parkingMapData ?? null
+    const parkingMapStore = useParkingMapStore()
+    const parkingMapData = computed(
+      () => history.state?.parkingMapData ?? parkingMapStore.mapData ?? null
+    )
     const highlightedSlotCode = history.state?.assignedSlotCode ?? null
 
     // 우선순위: query.plate(즉시 표출) → query.vehicleId로 백엔드 조회 후 plate 세팅
@@ -77,7 +78,7 @@ export default {
       router.push('/')
     }
 
-    return { bottomSectionRef, formattedPlate, goHome, parkingMapData, highlightedSlotCode }
+    return { formattedPlate, goHome, parkingMapData, highlightedSlotCode }
   }
 }
 </script>
@@ -130,8 +131,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

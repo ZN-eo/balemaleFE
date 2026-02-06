@@ -6,7 +6,7 @@
     </div>
 
     <!-- 차량 번호 입력 키패드 -->
-    <div class="bottom-section" ref="bottomSectionRef">
+    <div class="bottom-section">
       <div class="bottom-section__fit">
       <div class="keypad-container">
         <div class="input-fields">
@@ -55,7 +55,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 
 export default {
   name: 'HomeView',
@@ -64,8 +63,6 @@ export default {
   },
   setup() {
     const router = useRouter()
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
     const inputDigits = ref(['', '', '', ''])
 
     const inputNumber = (num) => {
@@ -96,7 +93,6 @@ export default {
     }
 
     return {
-      bottomSectionRef,
       inputDigits,
       inputNumber,
       deleteDigit,
@@ -162,8 +158,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

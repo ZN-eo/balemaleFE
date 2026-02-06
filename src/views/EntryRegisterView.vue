@@ -3,7 +3,7 @@
     <div class="middle-section">
       <ParkingMap />
     </div>
-    <div class="bottom-section" ref="bottomSectionRef">
+    <div class="bottom-section">
       <div class="bottom-section__fit">
       <div class="content-wrap">
         <div class="complete-panel">
@@ -33,8 +33,8 @@
 <script>
 import ParkingMap from '@/components/ParkingMap.vue'
 import { registerVehicleWithOcr } from '@/api/modules/parking'
-import { getParkedCars, getParkingMap } from '@/api/modules/public'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
+import { getParkedCars } from '@/api/modules/public'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -46,8 +46,6 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
 
     const plateRaw = route.query.plate
     const plateFromQuery = Array.isArray(plateRaw) ? plateRaw[0] : plateRaw
@@ -121,20 +119,13 @@ export default {
         const resultPlate = result?.plate ?? plate.value
         const resultNodeCode = result?.nodeCode ?? null
 
-        let parkingMapData = null
-        try {
-          const mapRes = await getParkingMap()
-          const list = mapRes?.data?.data ?? mapRes?.data ?? []
-          if (Array.isArray(list) && list.length >= 12) parkingMapData = list
-        } catch (e) {
-          if (import.meta.env.DEV) console.warn('맵 데이터 조회 실패:', e)
-        }
-
+        await useParkingMapStore().fetchParkingMap()
+        const parkingMapStore = useParkingMapStore()
         router.push({
           path: '/entry/complete',
           query: { ...(resultPlate ? { plate: resultPlate } : {}) },
           state: {
-            parkingMapData,
+            parkingMapData: parkingMapStore.mapData,
             assignedSlotCode: resultNodeCode
           }
         })
@@ -151,7 +142,6 @@ export default {
     }
 
     return {
-      bottomSectionRef,
       formattedPlate,
       goBack,
       enter,
@@ -210,8 +200,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;

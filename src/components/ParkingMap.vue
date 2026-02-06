@@ -114,8 +114,9 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import { getAvailableParkingCount, getParkingMap } from '@/api/modules/public'
+import { ref, onMounted, watch } from 'vue'
+import { getAvailableParkingCount } from '@/api/modules/public'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 import { defineComponent } from 'vue'
 import blackCar from '@/assets/icons/black-car.png'
 import blueCar from '@/assets/icons/blue-car.png'
@@ -198,25 +199,25 @@ export default defineComponent({
     /** 잔여 수 API 조회 완료 여부 (로딩 중에는 만차로 보이지 않도록) */
     const parkingCountLoaded = ref(false)
 
-    const fetchParkingMap = async () => {
-      try {
-        const res = await getParkingMap()
-        const list = res.data?.data ?? res.data ?? []
-        applyMapList(list, topGridSpots, bottomGridSpots)
-      } catch (error) {
-        if (import.meta.env.DEV) {
-          console.warn('주차장 맵 조회 실패:', error?.message || error)
+    const parkingMapStore = useParkingMapStore()
+
+    /** 스토어 맵 데이터가 들어오면 적용 (앱 초기 로드 후 등). initialMapData 있으면 부모가 준 데이터만 사용 */
+    watch(
+      () => parkingMapStore.mapData,
+      (list) => {
+        if (props.initialMapData?.length >= 12) return
+        if (Array.isArray(list) && list.length >= 12) {
+          applyMapList(list, topGridSpots, bottomGridSpots)
+        } else if (list === null) {
+          topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
+          bottomGridSpots.value = Array.from({ length: 4 }, (_, i) => ({
+            occupied: false,
+            isDisabled: i < 2
+          }))
         }
-        topGridSpots.value = Array.from({ length: 8 }, () => ({
-          occupied: false,
-          isDisabled: false
-        }))
-        bottomGridSpots.value = Array.from({ length: 4 }, (_, idx) => ({
-          occupied: false,
-          isDisabled: idx < 2
-        }))
-      }
-    }
+      },
+      { immediate: true }
+    )
 
     const fetchParkingCount = async () => {
       try {
@@ -234,11 +235,11 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      const list = props.initialMapData
+      const list = props.initialMapData ?? parkingMapStore.mapData
       if (Array.isArray(list) && list.length >= 12) {
         applyMapList(list, topGridSpots, bottomGridSpots)
-      } else {
-        fetchParkingMap()
+      } else if (!parkingMapStore.mapData) {
+        parkingMapStore.fetchParkingMap()
       }
       fetchParkingCount()
     })

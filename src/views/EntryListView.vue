@@ -6,7 +6,7 @@
     </div>
 
     <!-- 하단 섹션 (차량 카드 리스트) -->
-    <div class="bottom-section" ref="bottomSectionRef">
+    <div class="bottom-section">
       <div class="bottom-section__fit">
       <div class="list-panel" :class="{ 'is-empty': cars.length === 0 }">
         <div v-if="cars.length === 0" class="empty-panel">
@@ -39,7 +39,6 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
 import { getOcrDetections } from '@/api/modules/parking'
-import { useBottomSectionScale } from '@/composables/useBottomSectionScale'
 
 export default {
   name: 'EntryListView',
@@ -49,8 +48,6 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const bottomSectionRef = ref(null)
-    useBottomSectionScale(bottomSectionRef)
 
     const vehicleFourNumberRaw = route.query.vehicleFourNumber
     const vehicleFourNumber =
@@ -108,7 +105,6 @@ export default {
     })
 
     return {
-      bottomSectionRef,
       cars,
       selectCar,
       goBack
@@ -165,8 +161,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
   height: 500px;
   min-height: 500px;
   margin: 0 auto;
