@@ -70,7 +70,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 712px;
+  width: 800px;
   max-width: 100%;
   height: 500px;
   min-height: 500px;

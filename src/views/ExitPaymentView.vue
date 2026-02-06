@@ -509,7 +509,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 712px;
+  width: 800px;
   max-width: 100%;
   height: 500px;
   min-height: 500px;
@@ -541,6 +541,11 @@ export default {
 
 .bottom-section__parking-content {
   width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* exit/list car-card와 동일한 디자인 */

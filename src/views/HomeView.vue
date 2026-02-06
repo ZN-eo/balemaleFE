@@ -162,7 +162,7 @@ export default {
 
 .bottom-section {
   flex: 0 0 auto;
-  width: 712px;
+  width: 800px;
   max-width: 100%;
   height: 500px;
   min-height: 500px;
@@ -173,16 +173,9 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 1rem;
   align-items: center;
-}
-
-/* bottom-section 전체 높이에 맞춤 (fit 영역을 section과 동일하게) */
-.bottom-section :deep(.bottom-section__fit) {
-  height: 100%;
-  width: 100%;
-  left: 0;
-  margin-left: 0;
+  justify-content: center;
 }
 
 /* bottom-section 높이에 맞춰 꽉 채움 */
