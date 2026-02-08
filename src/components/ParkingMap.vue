@@ -499,7 +499,7 @@ export default defineComponent({
   }
 }
 
-/* 위치 코드 알약 뱃지: 주차칸 아래쪽 (일반/장애인 공통 빨간색 텍스트) */
+/* 위치 코드 알약 뱃지: 주차칸 아래쪽 */
 .slot-code {
   flex-shrink: 0;
   display: inline-block;
@@ -509,11 +509,10 @@ export default defineComponent({
   font-weight: 700;
   letter-spacing: 0.02em;
   margin-top: 0.375rem;
-  color: var(--color-error, #dc3545);
 }
 .slot-code.occupied {
   background: var(--border-light);
-  color: var(--color-error, #dc3545);
+  color: var(--text-muted);
 }
 .slot-code.blocked {
   background: rgba(220, 53, 69, 0.15);
@@ -521,7 +520,7 @@ export default defineComponent({
 }
 .slot-code:not(.occupied):not(.blocked) {
   background: #ede9fe;
-  color: var(--color-error, #dc3545);
+  color: var(--color-primary);
 }
 
 .slot-code.selected {
@@ -570,14 +569,20 @@ export default defineComponent({
   color: #fff;
 }
 
-/* 장애인 주차칸 slot-code 글자 색상 (빨간색 통일) */
+/* 장애인 주차칸 slot-code 글자 색상 */
 .slot-code.disabled {
+  color: var(--color-teal);
+}
+
+/* 장애인칸 + 주차불가(BLOCKED): 일반칸과 동일하게 빨간색 */
+.slot-code.blocked.disabled {
+  background: rgba(220, 53, 69, 0.15);
   color: var(--color-error, #dc3545);
 }
 
-/* 장애인칸 + 점유 시: 빨간색 */
+/* 장애인칸 + 점유 시: 일반 점유 칸과 동일한 글자 색상 */
 .slot-code.occupied.disabled {
-  color: var(--color-error, #dc3545);
+  color: var(--text-muted);
 }
 
 /* 칸 중앙: 차량 아이콘 또는 주차 가능 */

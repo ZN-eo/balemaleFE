@@ -127,7 +127,7 @@ export default defineComponent({
   box-sizing: border-box;
   color: var(--color-teal);
   font-weight: 700;
-  font-size: clamp(1rem, 1.2vh, 1.125rem);
+  font-size: clamp(1.3rem, 1.56vh, 1.4625rem);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
@@ -148,7 +148,7 @@ export default defineComponent({
 
 .robot-status-waiting {
   opacity: 0.9;
-  font-size: clamp(1.5rem, 1.8vh, 1.6875rem);
+  font-size: clamp(1.95rem, 2.34vh, 2.19375rem);
 }
 
 .badge--primary {
