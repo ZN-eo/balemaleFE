@@ -4,11 +4,13 @@
       <ParkingMap
         :initial-map-data="parkingMapData"
         :highlighted-slot-code="highlightedSlotCode"
+        highlight-variant="teal"
       />
     </div>
     <div class="bottom-section">
       <div class="bottom-section__fit">
-      <div class="complete-panel">
+      <LoadingPanel v-if="loading" />
+      <div v-else class="complete-panel">
         <div class="plate-box">{{ formattedPlate }}</div>
         <div class="complete-title">등록완료!</div>
         <div class="complete-desc">입차 등록이 완료되었습니다</div>
@@ -26,22 +28,58 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
+import LoadingPanel from '@/components/LoadingPanel.vue'
 import { getParkedCars } from '@/api/modules/public'
 import { useParkingMapStore } from '@/stores/parkingMapStore'
+
+// slotId → nodeCode: 1–4 A1~A4, 5–8 B1~B4, 9–12 C1~C4
+const slotIdToNodeCode = (id) => {
+  const map = { 1: 'A1', 2: 'A2', 3: 'A3', 4: 'A4', 5: 'B1', 6: 'B2', 7: 'B3', 8: 'B4', 9: 'C1', 10: 'C2', 11: 'C3', 12: 'C4' }
+  return map[id] ?? null
+}
 
 export default {
   name: 'EntryCompleteView',
   components: {
-    ParkingMap
+    ParkingMap,
+    LoadingPanel
   },
   setup() {
     const route = useRoute()
     const router = useRouter()
     const parkingMapStore = useParkingMapStore()
-    const parkingMapData = computed(
-      () => history.state?.parkingMapData ?? parkingMapStore.mapData ?? null
-    )
-    const highlightedSlotCode = history.state?.assignedSlotCode ?? null
+    const loading = ref(false)
+
+    // state 맵 데이터 우선 사용, 없으면 store 맵 + query.slot 또는 assignedSlotId로 배정 슬롯 OCCUPIED 표시
+    const parkingMapData = computed(() => {
+      const fromState = history.state?.parkingMapData
+      if (Array.isArray(fromState) && fromState.length >= 12) return fromState
+
+      const storeMap = parkingMapStore.mapData
+      if (!Array.isArray(storeMap) || storeMap.length < 12) return storeMap
+
+      const slotId = history.state?.assignedSlotId ?? null
+      const slotCode = route.query.slot ?? history.state?.assignedSlotCode ?? (slotId ? slotIdToNodeCode(slotId) : null)
+      if (!slotId && !slotCode) return storeMap
+
+      const sid = slotId != null ? Number(slotId) : null
+      const codeNorm = slotCode ? String(slotCode).trim().toUpperCase().replace(/-/g, '') : ''
+      return storeMap.map((s) => {
+        if (sid != null && sid >= 1 && sid <= 12 && Number(s?.slotId) === sid) return { ...s, slotStatus: 'OCCUPIED' }
+        if (codeNorm && (s?.nodeCode ?? '').toString().trim().toUpperCase().replace(/-/g, '') === codeNorm) return { ...s, slotStatus: 'OCCUPIED' }
+        return s
+      })
+    })
+
+    const highlightedSlotCode = computed(() => {
+      const fromState = history.state?.assignedSlotCode
+      if (fromState) return fromState
+      const slotRaw = route.query.slot
+      const slotFromQuery = Array.isArray(slotRaw) ? slotRaw[0] : slotRaw
+      if (slotFromQuery) return String(slotFromQuery).trim().toUpperCase()
+      const sid = history.state?.assignedSlotId
+      return sid != null ? slotIdToNodeCode(sid) : null
+    })
 
     // 우선순위: query.plate(즉시 표출) → query.vehicleId로 백엔드 조회 후 plate 세팅
     const plateRaw = route.query.plate
@@ -70,15 +108,27 @@ export default {
       return v ? v.split('').join(' ') : ''
     })
 
-    onMounted(() => {
-      if (!plate.value) fetchPlateByVehicleId()
+    onMounted(async () => {
+      const needsPlateFetch = !plate.value
+      const hasSlotFromQuery = route.query.slot
+      const hasMapFromState = Array.isArray(history.state?.parkingMapData) && history.state.parkingMapData.length >= 12
+      const needsMapFetch = hasSlotFromQuery && !hasMapFromState
+      if (needsPlateFetch || needsMapFetch) {
+        loading.value = true
+        try {
+          if (needsPlateFetch) await fetchPlateByVehicleId()
+          if (needsMapFetch) await parkingMapStore.fetchParkingMap()
+        } finally {
+          loading.value = false
+        }
+      }
     })
 
     const goHome = () => {
       router.push('/')
     }
 
-    return { formattedPlate, goHome, parkingMapData, highlightedSlotCode }
+    return { formattedPlate, goHome, loading, parkingMapData, highlightedSlotCode }
   }
 }
 </script>
@@ -175,7 +225,7 @@ export default {
   justify-content: center;
   text-align: center;
   font-weight: 700;
-  font-size: clamp(20px, 5vw, 32px);
+  font-size: clamp(30px, 7.5vw, 48px);
   letter-spacing: 0.08em;
   color: var(--text-primary);
 }
@@ -183,13 +233,13 @@ export default {
 .complete-title {
   color: var(--color-teal);
   font-weight: 800;
-  font-size: clamp(22px, 6vw, 40px);
+  font-size: clamp(33px, 7vw, 48px);
 }
 
 .complete-desc {
   color: var(--color-teal-light);
   font-weight: 700;
-  font-size: clamp(16px, 4.5vw, 28px);
+  font-size: clamp(24px, 5.75vw, 36px);
   letter-spacing: 0.12em;
   text-align: center;
 }

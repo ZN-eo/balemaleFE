@@ -1,6 +1,7 @@
 <template>
   <div class="robot-status">
     <template v-if="lastRobotEvent">
+      <span v-if="showEstopIcon" ref="estopIconRef" class="robot-status-icon" aria-hidden="true" />
       <span class="robot-status-label">주차로봇</span>
       <span :class="['robot-status-value', statusClass]">
         {{ statusLabel }}
@@ -11,12 +12,14 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { defineComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useWsStore } from '@/stores/wsStore'
 import { subscribeRobotEvent, unsubscribeRobotEvent } from '@/api/websocket/wsApi'
 import type { RobotEventType } from '@/api/websocket/wsApi'
+import lottie from 'lottie-web'
+import estopAnimation from '@/assets/icons/robot/estop.json'
 
 const ROBOT_EVENT_LABELS: Record<RobotEventType, string> = {
   ENTERING: '입차중',
@@ -27,8 +30,8 @@ const ROBOT_EVENT_LABELS: Record<RobotEventType, string> = {
 }
 
 function eventTypeClass(type: RobotEventType): string {
-  if (type === 'ESTOP' || type === 'FAILED') return 'badge--danger'
-  if (type === 'WAITING') return 'badge--info'
+  if (type === 'ESTOP' || type === 'FAILED') return 'badge--danger' // 일시멈춤
+  if (type === 'WAITING') return 'badge--info' // 대기중
   return 'badge--primary'
 }
 
@@ -37,6 +40,13 @@ export default defineComponent({
   setup() {
     const wsStore = useWsStore()
     const { lastRobotEvent } = storeToRefs(wsStore)
+    const estopIconRef = ref<HTMLElement | null>(null)
+    let lottieInstance: ReturnType<typeof lottie.loadAnimation> | null = null
+
+    const showEstopIcon = computed(() => {
+      const type = lastRobotEvent.value?.robotOperationStatus
+      return type === 'ESTOP' || type === 'FAILED'
+    })
 
     const statusLabel = computed(() => {
       const type = lastRobotEvent.value?.robotOperationStatus
@@ -48,6 +58,25 @@ export default defineComponent({
       return type != null ? eventTypeClass(type) : 'badge--info'
     })
 
+    watch(
+      showEstopIcon,
+      async (show) => {
+        lottieInstance?.destroy()
+        lottieInstance = null
+        if (!show) return
+        await nextTick()
+        if (!estopIconRef.value) return
+        lottieInstance = lottie.loadAnimation({
+          container: estopIconRef.value,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          animationData: estopAnimation
+        })
+      },
+      { immediate: true }
+    )
+
     onMounted(() => {
       subscribeRobotEvent((data) => {
         wsStore.setRobotEvent(data)
@@ -56,12 +85,16 @@ export default defineComponent({
 
     onUnmounted(() => {
       unsubscribeRobotEvent()
+      lottieInstance?.destroy()
+      lottieInstance = null
     })
 
     return {
       lastRobotEvent,
       statusLabel,
-      statusClass
+      statusClass,
+      showEstopIcon,
+      estopIconRef
     }
   }
 })
@@ -85,6 +118,12 @@ export default defineComponent({
   font-size: clamp(1rem, 1.2vh, 1.125rem);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
+}
+
+.robot-status-icon {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
 }
 
 .robot-status-label {

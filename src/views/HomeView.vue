@@ -2,7 +2,8 @@
   <div class="home-container">
     <!-- 주차장 맵 내 잔여 주차 수 표시 (일반/장애인/총 잔여수) -->
     <div class="middle-section">
-      <ParkingMap />
+      <LoadingPanel v-if="loading" />
+      <ParkingMap v-else />
     </div>
 
     <!-- 차량 번호 입력 키패드 -->
@@ -52,17 +53,22 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
+import LoadingPanel from '@/components/LoadingPanel.vue'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 
 export default {
   name: 'HomeView',
   components: {
-    ParkingMap
+    ParkingMap,
+    LoadingPanel
   },
   setup() {
     const router = useRouter()
+    const parkingMapStore = useParkingMapStore()
+    const loading = ref(!parkingMapStore.mapData)
     const inputDigits = ref(['', '', '', ''])
 
     const inputNumber = (num) => {
@@ -92,7 +98,16 @@ export default {
       }
     }
 
+    watch(
+      () => parkingMapStore.mapData,
+      (data) => {
+        if (Array.isArray(data) && data.length >= 12) loading.value = false
+      },
+      { immediate: true }
+    )
+
     return {
+      loading,
       inputDigits,
       inputNumber,
       deleteDigit,
