@@ -8,8 +8,9 @@
     <!-- 하단 섹션 (차량 카드 리스트) -->
     <div class="bottom-section">
       <div class="bottom-section__fit">
-      <div class="list-panel" :class="{ 'is-empty': cars.length === 0 }">
-        <div v-if="cars.length === 0" class="empty-panel">
+      <div class="list-panel" :class="{ 'is-empty': loading || cars.length === 0 }">
+        <LoadingPanel v-if="loading" />
+        <div v-else-if="cars.length === 0" class="empty-panel">
           <div class="empty-text error">등록 대기 차량이 없습니다</div>
         </div>
 
@@ -19,11 +20,22 @@
             :key="`${car.plate}-${idx}`"
             type="button"
             class="car-card"
-            :class="{ 'is-disabled-car': car.isDisabled }"
             @click="selectCar(car)"
           >
             <span class="car-plate">{{ car.plate }}</span>
-            <span v-if="car.isDisabled" class="disabled-badge">장애인</span>
+            <svg
+              v-if="car.isDisabled"
+              class="disabled-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 -960 960 960"
+              role="img"
+              aria-label="장애인"
+            >
+              <path
+                d="M480-720q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720ZM680-80v-200H480q-33 0-56.5-23.5T400-360v-240q0-33 23.5-56.5T480-680q24 0 41.5 10.5T559-636q55 66 99.5 90.5T760-520v80q-53 0-107-23t-93-55v138h120q33 0 56.5 23.5T760-300v220h-80Zm-280 0q-83 0-141.5-58.5T200-280q0-72 45.5-127T360-476v82q-35 14-57.5 44.5T280-280q0 50 35 85t85 35q39 0 69.5-22.5T514-240h82q-14 69-69 114.5T400-80Z"
+                fill="currentColor"
+              />
+            </svg>
           </button>
         </div>
       </div>
@@ -38,12 +50,14 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ParkingMap from '@/components/ParkingMap.vue'
+import LoadingPanel from '@/components/LoadingPanel.vue'
 import { getOcrDetections } from '@/api/modules/parking'
 
 export default {
   name: 'EntryListView',
   components: {
-    ParkingMap
+    ParkingMap,
+    LoadingPanel
   },
   setup() {
     const route = useRoute()
@@ -54,6 +68,7 @@ export default {
       Array.isArray(vehicleFourNumberRaw) ? vehicleFourNumberRaw[0] : vehicleFourNumberRaw
 
     const cars = ref([])
+    const loading = ref(true)
 
     /** 번호판 문자열에서 숫자만 추출한 뒤 마지막 4자리 반환 (뒷번호 4자리) */
     const lastFourDigits = (plate) => {
@@ -62,9 +77,11 @@ export default {
     }
 
     const fetchOcrList = async () => {
+      loading.value = true
       const four = vehicleFourNumber != null ? String(vehicleFourNumber).trim() : ''
       if (four.length !== 4) {
         cars.value = []
+        loading.value = false
         return
       }
       try {
@@ -77,6 +94,8 @@ export default {
       } catch (e) {
         if (import.meta.env.DEV) console.warn('OCR 목록 조회 실패:', e)
         cars.value = []
+      } finally {
+        loading.value = false
       }
     }
 
@@ -106,6 +125,7 @@ export default {
 
     return {
       cars,
+      loading,
       selectCar,
       goBack
     }
@@ -241,24 +261,24 @@ export default {
   border-color: var(--color-teal-light);
   box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
 }
+
 .car-card {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
 }
 .car-plate {
-  flex: 1;
-  text-align: left;
+  text-align: center;
 }
-.car-card.is-disabled-car .disabled-badge {
-  flex-shrink: 0;
-  font-size: 14px;
-  font-weight: 600;
+.car-card .disabled-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
   color: var(--color-teal);
-  background: rgba(20, 184, 166, 0.15);
-  padding: 4px 10px;
-  border-radius: var(--radius-btn);
 }
 
 .prev-btn {

@@ -201,7 +201,18 @@ export default defineComponent({
 
     const parkingMapStore = useParkingMapStore()
 
-    /** 스토어 맵 데이터가 들어오면 적용 (앱 초기 로드 후 등). initialMapData 있으면 부모가 준 데이터만 사용 */
+    /** initialMapData가 있으면 우선 적용 (입차/정산 완료 후 부모가 넘긴 최신 맵) */
+    watch(
+      () => props.initialMapData,
+      (list) => {
+        if (Array.isArray(list) && list.length >= 12) {
+          applyMapList(list, topGridSpots, bottomGridSpots)
+        }
+      },
+      { immediate: true }
+    )
+
+    /** initialMapData 없을 때만 스토어 맵 데이터 적용 */
     watch(
       () => parkingMapStore.mapData,
       (list) => {

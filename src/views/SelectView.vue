@@ -2,7 +2,8 @@
   <div class="select-container">
     <!-- 중간 섹션 -->
     <div class="middle-section">
-      <ParkingMap />
+      <LoadingPanel v-if="loading" />
+      <ParkingMap v-else />
     </div>
 
     <!-- 하단 섹션 - 버튼 영역 -->
@@ -26,16 +27,30 @@
 
 <script>
 import { useRoute, useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
 import ParkingMap from '@/components/ParkingMap.vue'
+import LoadingPanel from '@/components/LoadingPanel.vue'
+import { useParkingMapStore } from '@/stores/parkingMapStore'
 
 export default {
   name: 'SelectView',
   components: {
-    ParkingMap
+    ParkingMap,
+    LoadingPanel
   },
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const parkingMapStore = useParkingMapStore()
+    const loading = ref(!(Array.isArray(parkingMapStore.mapData) && parkingMapStore.mapData.length >= 12))
+
+    watch(
+      () => parkingMapStore.mapData,
+      (data) => {
+        if (Array.isArray(data) && data.length >= 12) loading.value = false
+      },
+      { immediate: true }
+    )
 
     const goToExitList = () => {
       router.push({
@@ -56,6 +71,7 @@ export default {
     }
 
     return {
+      loading,
       goToExitList,
       goToEntryList,
       goToHome

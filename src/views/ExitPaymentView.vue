@@ -26,10 +26,10 @@
         <div class="vehicle-card">{{ parkedCar.plate }}</div>
         <div class="status-message">
           <template v-if="vehicleStatus === 'MOVING'">
-            <span class="status-message__node">{{ parkedCar.nodeCode }}</span><span> 위치에 주차중 입니다</span>
+            <span class="status-message__node" :class="{ 'status-message__node--disabled': isDisabledCar }">{{ parkedCar.nodeCode }}</span><span> 위치에 주차중 입니다</span>
           </template>
           <template v-else>
-            <span class="status-message__node">{{ parkedCar.nodeCode }}</span><span> 위치에 주차 예정입니다</span>
+            <span class="status-message__node" :class="{ 'status-message__node--disabled': isDisabledCar }">{{ parkedCar.nodeCode }}</span><span> 위치에 주차 예정입니다</span>
           </template>
         </div>
       </div>
@@ -322,6 +322,21 @@ export default {
       return 'PARKING'
     })
 
+    // 장애인 차량 여부: parkedCar.isDisabled 또는 주차장 맵 nodeCode → slotType으로 추론
+    const isDisabledCar = computed(() => {
+      const car = parkedCar.value
+      if (!car) return false
+      if (car.isDisabled === true) return true
+      const nodeCode = (car.nodeCode ?? '').toString().trim().toUpperCase().replace(/-/g, '')
+      if (!nodeCode) return false
+      const mapData = useParkingMapStore().mapData
+      if (!Array.isArray(mapData) || mapData.length === 0) return false
+      const slot = mapData.find(
+        (s) => (s?.nodeCode ?? '').toString().trim().toUpperCase().replace(/-/g, '') === nodeCode
+      )
+      return slot?.slotType === 'DISABLED'
+    })
+
     const goBack = () => {
       router.back()
     }
@@ -441,6 +456,7 @@ export default {
       formattedEntryAt,
       formattedAmount,
       vehicleStatus,
+      isDisabledCar,
       goBack,
       goHome,
       pay,
@@ -568,8 +584,11 @@ export default {
 }
 
 .status-message__node {
-  color: #0d9488;
+  color: #7c3aed;
   font-weight: 700;
+}
+.status-message__node--disabled {
+  color: #0d9488;
 }
 
 .info-panel {

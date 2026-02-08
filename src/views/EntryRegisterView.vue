@@ -6,7 +6,8 @@
     <div class="bottom-section">
       <div class="bottom-section__fit">
       <div class="content-wrap">
-        <div class="complete-panel">
+        <LoadingPanel v-if="loading" />
+        <div v-else class="complete-panel">
           <div class="plate-box">{{ formattedPlate }}</div>
           <div class="entry-title">입 차 를 진 행 합 니 다</div>
           <div class="entry-warning">※ 주차완료 전까지 출차 불가</div>
@@ -32,6 +33,7 @@
 
 <script>
 import ParkingMap from '@/components/ParkingMap.vue'
+import LoadingPanel from '@/components/LoadingPanel.vue'
 import { registerVehicleWithOcr } from '@/api/modules/parking'
 import { getParkedCars } from '@/api/modules/public'
 import { useParkingMapStore } from '@/stores/parkingMapStore'
@@ -41,7 +43,8 @@ import { useRoute, useRouter } from 'vue-router'
 export default {
   name: 'EntryRegisterView',
   components: {
-    ParkingMap
+    ParkingMap,
+    LoadingPanel
   },
   setup() {
     const route = useRoute()
@@ -100,6 +103,7 @@ export default {
     }
 
     const showFullModal = ref(false)
+    const loading = ref(false)
 
     const closeFullModal = () => {
       showFullModal.value = false
@@ -112,21 +116,39 @@ export default {
         alert('차량 번호를 확인해주세요.')
         return
       }
+      loading.value = true
       try {
         const res = await registerVehicleWithOcr(ocrDetection)
         if (import.meta.env.DEV) console.log('입차 등록 응답 코드:', res.status)
         const result = res?.data?.data ?? res?.data
         const resultPlate = result?.plate ?? plate.value
-        const resultNodeCode = result?.nodeCode ?? null
+        const resultSlotId = result?.slotId != null ? Number(result.slotId) : null
+        // slotId → nodeCode: 1–4 A1~A4, 5–8 B1~B4, 9–12 C1~C4
+        const slotIdToNodeCode = (id) => {
+          const map = { 1: 'A1', 2: 'A2', 3: 'A3', 4: 'A4', 5: 'B1', 6: 'B2', 7: 'B3', 8: 'B4', 9: 'C1', 10: 'C2', 11: 'C3', 12: 'C4' }
+          return map[id] ?? null
+        }
+        const assignedSlotCode = resultSlotId ? slotIdToNodeCode(resultSlotId) : (result?.nodeCode ?? null)
 
         await useParkingMapStore().fetchParkingMap()
         const parkingMapStore = useParkingMapStore()
+        // AddVehicleResult.slotId로 배정 슬롯을 OCCUPIED로 표시 (백엔드 갱신 지연 대비)
+        let mapDataToPass = parkingMapStore.mapData
+        if (resultSlotId != null && resultSlotId >= 1 && resultSlotId <= 12 && Array.isArray(mapDataToPass) && mapDataToPass.length >= 12) {
+          mapDataToPass = mapDataToPass.map((slot) =>
+            Number(slot?.slotId) === resultSlotId ? { ...slot, slotStatus: 'OCCUPIED' } : slot
+          )
+        }
         router.push({
           path: '/entry/complete',
-          query: { ...(resultPlate ? { plate: resultPlate } : {}) },
+          query: {
+            ...(resultPlate ? { plate: resultPlate } : {}),
+            ...(assignedSlotCode ? { slot: assignedSlotCode } : {})
+          },
           state: {
-            parkingMapData: parkingMapStore.mapData,
-            assignedSlotCode: resultNodeCode
+            parkingMapData: mapDataToPass,
+            assignedSlotCode,
+            assignedSlotId: resultSlotId
           }
         })
       } catch (e) {
@@ -138,6 +160,8 @@ export default {
         }
         if (import.meta.env.DEV) console.warn('입차 등록 실패:', e)
         alert('입차 등록에 실패했습니다. 다시 시도해주세요.')
+      } finally {
+        loading.value = false
       }
     }
 
@@ -145,6 +169,7 @@ export default {
       formattedPlate,
       goBack,
       enter,
+      loading,
       showFullModal,
       closeFullModal
     }
@@ -254,7 +279,7 @@ export default {
   justify-content: center;
   text-align: center;
   font-weight: 700;
-  font-size: clamp(1rem, 1.2vh, 1.25rem);
+  font-size: clamp(1.5rem, 1.8vh, 1.875rem);
   letter-spacing: 0.08em;
   color: var(--text-primary);
 }
@@ -262,7 +287,7 @@ export default {
 .entry-title {
   color: var(--color-teal);
   font-weight: 800;
-  font-size: clamp(1.125rem, 1.5vh, 2.5rem);
+  font-size: clamp(1.6875rem, 2.25vh, 3.75rem);
   letter-spacing: 0.18em;
   text-align: center;
 }
@@ -270,7 +295,7 @@ export default {
 .entry-warning {
   color: var(--color-error);
   font-weight: 800;
-  font-size: clamp(1rem, 1.2vh, 1.5rem);
+  font-size: clamp(1.5rem, 1.8vh, 2.25rem);
   letter-spacing: 0.12em;
   text-align: center;
 }
@@ -389,7 +414,7 @@ export default {
   }
 
   .plate-box {
-    font-size: 1.25rem;
+    font-size: 1.875rem;
   }
 
   .prev-btn,
