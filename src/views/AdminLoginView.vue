@@ -60,8 +60,8 @@ export default {
   name: 'AdminLogin',
   data() {
     return {
-      id: '',
-      password: '',
+      id: 'admin',
+      password: 'admin1234',
       loading: false
     }
   },

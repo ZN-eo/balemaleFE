@@ -221,7 +221,7 @@ export default {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   width: 100%;
   display: flex;
@@ -453,8 +453,10 @@ export default {
 .anomaly-card .route {
   grid-column: 2;
   grid-row: 2;
+  width: 342px;
+  height: 56px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 150px 42px 150px;
   grid-template-rows: auto auto;
   column-gap: 0;
   row-gap: 6px;
@@ -465,9 +467,12 @@ export default {
 /* 위쪽: 동그라미 --------(점선)-------- 네모, 점선이 둘을 이음 */
 .anomaly-card .route__line {
   width: 100%;
-  min-width: 20px;
+  min-width: 180px;
+  margin-left: -6px;
+  margin-right: -6px;
   border-top: 2px dotted gray;
   opacity: 0.5;
+  align-self: center;
 }
 
 .anomaly-card .route__spacer {
@@ -476,11 +481,13 @@ export default {
 
 /* 아래쪽: fromNode, toNode (아이콘 정렬) */
 .anomaly-card .route__from {
-  justify-self: start;
+  justify-self: center;
+  text-align: center;
 }
 
 .anomaly-card .route__to {
-  justify-self: end;
+  justify-self: center;
+  text-align: center;
 }
 
 .anomaly-card .round-icon {
@@ -504,6 +511,7 @@ export default {
   font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.2px;
+  text-align: center;
 }
 
 .anomaly-card .typePill {
