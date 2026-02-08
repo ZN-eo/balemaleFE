@@ -372,9 +372,9 @@ export default {
 
 .card-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  max-width: 1000px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
 }
@@ -388,8 +388,10 @@ export default {
   --muted: rgba(72, 72, 72, 0.55);
   --pill-bg: rgb(228, 247, 232);
 
+  min-width: 0;
+  max-width: 100%;
   display: grid;
-  grid-template-columns: 96px 1fr;
+  grid-template-columns: 96px minmax(0, 1fr);
   grid-template-rows: auto auto;
   column-gap: 16px;
   row-gap: 10px;
@@ -453,10 +455,12 @@ export default {
 .anomaly-card .route {
   grid-column: 2;
   grid-row: 2;
-  width: 342px;
+  min-width: 0;
+  width: 100%;
+  max-width: 342px;
   height: 56px;
   display: grid;
-  grid-template-columns: 150px 42px 150px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   column-gap: 0;
   row-gap: 6px;
