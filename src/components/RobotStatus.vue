@@ -1,13 +1,10 @@
 <template>
   <div class="robot-status">
-    <template v-if="lastRobotEvent">
-      <span v-if="showEstopIcon" ref="estopIconRef" class="robot-status-icon" aria-hidden="true" />
-      <span class="robot-status-label">주차로봇</span>
-      <span :class="['robot-status-value', statusClass]">
-        {{ statusLabel }}
-      </span>
-    </template>
-    <span v-else class="robot-status-value robot-status-waiting">주차로봇 대기중</span>
+    <span ref="statusIconRef" class="robot-status-icon" aria-hidden="true" />
+    <span class="robot-status-label">주차로봇</span>
+    <span :class="['robot-status-value', displayStatusClass]">
+      {{ displayLabel }}
+    </span>
   </div>
 </template>
 
@@ -19,7 +16,18 @@ import { useWsStore } from '@/stores/wsStore'
 import { subscribeRobotEvent, unsubscribeRobotEvent } from '@/api/websocket/wsApi'
 import type { RobotEventType } from '@/api/websocket/wsApi'
 import lottie from 'lottie-web'
+import enteringAnimation from '@/assets/icons/robot/entering.json'
+import exitingAnimation from '@/assets/icons/robot/exiting.json'
+import waitingAnimation from '@/assets/icons/robot/waiting.json'
 import estopAnimation from '@/assets/icons/robot/estop.json'
+
+const ROBOT_ICON_ANIMATIONS: Record<RobotEventType, object> = {
+  ENTERING: enteringAnimation as object,
+  EXITING: exitingAnimation as object,
+  WAITING: waitingAnimation as object,
+  ESTOP: estopAnimation as object,
+  FAILED: estopAnimation as object
+}
 
 const ROBOT_EVENT_LABELS: Record<RobotEventType, string> = {
   ENTERING: '입차중',
@@ -40,12 +48,13 @@ export default defineComponent({
   setup() {
     const wsStore = useWsStore()
     const { lastRobotEvent } = storeToRefs(wsStore)
-    const estopIconRef = ref<HTMLElement | null>(null)
+    const statusIconRef = ref<HTMLElement | null>(null)
     let lottieInstance: ReturnType<typeof lottie.loadAnimation> | null = null
 
-    const showEstopIcon = computed(() => {
+    /** 이벤트 없을 때는 대기중 아이콘, 있을 때는 상태별 아이콘 */
+    const currentIconAnimation = computed(() => {
       const type = lastRobotEvent.value?.robotOperationStatus
-      return type === 'ESTOP' || type === 'FAILED'
+      return type != null ? (ROBOT_ICON_ANIMATIONS[type] ?? waitingAnimation) : (waitingAnimation as object)
     })
 
     const statusLabel = computed(() => {
@@ -58,20 +67,22 @@ export default defineComponent({
       return type != null ? eventTypeClass(type) : 'badge--info'
     })
 
+    const displayLabel = computed(() => (lastRobotEvent.value ? statusLabel.value : '대기중'))
+    const displayStatusClass = computed(() => (lastRobotEvent.value ? statusClass.value : 'badge--info'))
+
     watch(
-      showEstopIcon,
-      async (show) => {
+      currentIconAnimation,
+      async (animationData) => {
         lottieInstance?.destroy()
         lottieInstance = null
-        if (!show) return
         await nextTick()
-        if (!estopIconRef.value) return
+        if (!statusIconRef.value) return
         lottieInstance = lottie.loadAnimation({
-          container: estopIconRef.value,
+          container: statusIconRef.value,
           renderer: 'svg',
           loop: true,
           autoplay: true,
-          animationData: estopAnimation
+          animationData: animationData as object
         })
       },
       { immediate: true }
@@ -93,8 +104,9 @@ export default defineComponent({
       lastRobotEvent,
       statusLabel,
       statusClass,
-      showEstopIcon,
-      estopIconRef
+      displayLabel,
+      displayStatusClass,
+      statusIconRef
     }
   }
 })
@@ -121,8 +133,8 @@ export default defineComponent({
 }
 
 .robot-status-icon {
-  width: 2rem;
-  height: 2rem;
+  width: 3rem;
+  height: 3rem;
   flex-shrink: 0;
 }
 

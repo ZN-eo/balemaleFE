@@ -11,23 +11,31 @@
           >
             <div
               class="parking-spot"
-              :class="{ occupied: spot.occupied, selected: isSlotHighlighted('top', idx) }"
+              :class="{
+                occupied: spot.occupied,
+                selected: isSlotHighlighted('top', idx),
+                blocked: spot.blocked
+              }"
             >
               <span v-if="isSlotHighlighted('top', idx)" class="selected-blob" aria-hidden="true" />
               <div class="spot-center">
                 <img
-                  v-if="spot.occupied"
+                  v-if="spot.occupied && !spot.blocked"
                   :src="getCarIconSrc('top', idx)"
                   class="car-icon-img"
                   alt="주차된 차량"
                 />
                 <span v-else class="available-text">{{
-                  isSlotHighlighted('top', idx) ? 'Selected' : '주차 가능'
+                  isSlotHighlighted('top', idx) ? 'Selected' : spot.blocked ? '주차 불가' : '주차 가능'
                 }}</span>
               </div>
               <span
                 class="slot-code"
-                :class="{ occupied: spot.occupied, selected: isSlotHighlighted('top', idx) }"
+                :class="{
+                  occupied: spot.occupied,
+                  selected: isSlotHighlighted('top', idx),
+                  blocked: spot.blocked
+                }"
               >
                 {{ TOP_SLOT_CODES[idx] }}
               </span>
@@ -49,7 +57,8 @@
               :class="{
                 occupied: spot.occupied,
                 selected: isSlotHighlighted('bottom', idx),
-                disabled: spot.isDisabled
+                disabled: spot.isDisabled,
+                blocked: spot.blocked
               }"
             >
               <span
@@ -59,7 +68,7 @@
               />
               <div class="spot-center">
                 <svg
-                  v-if="spot.isDisabled"
+                  v-if="spot.isDisabled && !spot.blocked"
                   class="disabled-icon"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 -960 960 960"
@@ -72,13 +81,13 @@
                   />
                 </svg>
                 <img
-                  v-if="spot.occupied"
+                  v-if="spot.occupied && !spot.blocked"
                   :src="getCarIconSrc('bottom', idx)"
                   class="car-icon-img"
                   alt="주차된 차량"
                 />
                 <span v-else class="available-text">{{
-                  isSlotHighlighted('bottom', idx) ? 'Selected' : '주차 가능'
+                  isSlotHighlighted('bottom', idx) ? 'Selected' : spot.blocked ? '주차 불가' : '주차 가능'
                 }}</span>
               </div>
               <span
@@ -86,7 +95,8 @@
                 :class="{
                   occupied: spot.occupied,
                   selected: isSlotHighlighted('bottom', idx),
-                  disabled: spot.isDisabled
+                  disabled: spot.isDisabled,
+                  blocked: spot.blocked
                 }"
               >
                 {{ BOTTOM_SLOT_CODES[idx] }}
@@ -135,21 +145,23 @@ function getCarIconSrc(zone, idx) {
   return CAR_ICONS[i]
 }
 
-// API 슬롯 → 그리드용 스팟 (occupied, isDisabled, slotId)
+// API 슬롯 → 그리드용 스팟 (occupied, isDisabled, blocked, slotId)
 function toSpot(slot) {
   return {
     slotId: slot.slotId,
     occupied: slot.slotStatus === 'OCCUPIED',
-    isDisabled: slot.slotType === 'DISABLED'
+    isDisabled: slot.slotType === 'DISABLED',
+    blocked: slot.nodeStatus === 'BLOCKED'
   }
 }
 
 function applyMapList(list, topGridSpots, bottomGridSpots) {
   if (!Array.isArray(list) || list.length < 12) {
-    topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
+    topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false, blocked: false }))
     bottomGridSpots.value = Array.from({ length: 4 }, (_, i) => ({
       occupied: false,
-      isDisabled: i < 2
+      isDisabled: i < 2,
+      blocked: false
     }))
     return
   }
@@ -220,10 +232,11 @@ export default defineComponent({
         if (Array.isArray(list) && list.length >= 12) {
           applyMapList(list, topGridSpots, bottomGridSpots)
         } else if (list === null) {
-          topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false }))
+          topGridSpots.value = Array.from({ length: 8 }, () => ({ occupied: false, isDisabled: false, blocked: false }))
           bottomGridSpots.value = Array.from({ length: 4 }, (_, i) => ({
             occupied: false,
-            isDisabled: i < 2
+            isDisabled: i < 2,
+            blocked: false
           }))
         }
       },
@@ -381,6 +394,16 @@ export default defineComponent({
   background: var(--bg-page);
 }
 
+.parking-spot.blocked {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--bg-page),
+    var(--bg-page) 3px,
+    rgba(220, 53, 69, 0.08) 3px,
+    rgba(220, 53, 69, 0.08) 6px
+  );
+}
+
 .parking-spot.selected {
   background: linear-gradient(180deg, #beaeff 0%, #ece8ff 50%, #faf5ff 100%);
   border-color: transparent;
@@ -491,7 +514,11 @@ export default defineComponent({
   background: var(--border-light);
   color: var(--text-muted);
 }
-.slot-code:not(.occupied) {
+.slot-code.blocked {
+  background: rgba(220, 53, 69, 0.15);
+  color: var(--color-error, #dc3545);
+}
+.slot-code:not(.occupied):not(.blocked) {
   background: #ede9fe;
   color: var(--color-primary);
 }
@@ -579,6 +606,10 @@ export default defineComponent({
   color: var(--text-muted);
   letter-spacing: 0.02em;
   margin-top: 1.3125rem;
+}
+
+.parking-spot.blocked .available-text {
+  color: var(--color-error, #dc3545);
 }
 
 /* 장애인 아이콘: spot-center 우측 상단, slot-code와 동일 색상 */
